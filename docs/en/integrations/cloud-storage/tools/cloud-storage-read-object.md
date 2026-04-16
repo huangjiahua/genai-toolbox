@@ -12,7 +12,7 @@ A `cloud-storage-read-object` tool fetches the bytes of a single
 [Cloud Storage object][gcs-objects] and returns them base64-encoded so that
 arbitrary binary content can be round-tripped through JSON safely.
 
-Reads are capped at **1 MiB** per call to protect the server's memory and keep
+Reads are capped at **8 MiB** per call to protect the server's memory and keep
 LLM contexts manageable; objects or ranges larger than that are rejected with
 an agent-fixable error. Use the optional `range` parameter to read a slice of
 a larger object.

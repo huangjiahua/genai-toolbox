@@ -29,7 +29,7 @@ import (
 // DefaultMaxReadBytes is the default cap for ReadObject payloads. Objects (or
 // ranges) larger than this are rejected with ErrReadSizeLimitExceeded so they
 // can't OOM the server or blow an LLM's context window.
-const DefaultMaxReadBytes int64 = 1 << 20 // 1 MiB
+const DefaultMaxReadBytes int64 = 8 << 20 // 8 MiB
 
 // ErrReadSizeLimitExceeded is returned by the source when an object/range would
 // exceed the configured byte limit. ProcessGCSError maps this to an Agent

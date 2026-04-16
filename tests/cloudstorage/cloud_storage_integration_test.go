@@ -46,9 +46,9 @@ const (
 	largeObject = "seed/large.bin"
 	helloBody   = "hello world"
 	jsonBody    = `{"foo":"bar"}`
-	// largeObjectSize is > the 1 MiB read cap so we can assert the size-limit
+	// largeObjectSize is > the 8 MiB read cap so we can assert the size-limit
 	// agent-error path on the read_object tool.
-	largeObjectSize = (1 << 20) + 1024
+	largeObjectSize = (8 << 20) + 1024
 )
 
 func getCloudStorageVars(t *testing.T) map[string]any {
