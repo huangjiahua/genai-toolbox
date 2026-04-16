@@ -32,6 +32,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/googleapis/mcp-toolbox/internal/testutils"
 	"github.com/googleapis/mcp-toolbox/tests"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -164,8 +165,11 @@ func setupCloudStorageTestData(t *testing.T, ctx context.Context, client *storag
 		it := bkt.Objects(cleanupCtx, nil)
 		for {
 			attrs, err := it.Next()
+			if err == iterator.Done {
+				break
+			}
 			if err != nil {
-				// iterator.Done or another error: stop iterating and attempt bucket delete.
+				t.Logf("cleanup: iterator error, aborting object delete loop: %v", err)
 				break
 			}
 			if delErr := bkt.Object(attrs.Name).Delete(cleanupCtx); delErr != nil {
