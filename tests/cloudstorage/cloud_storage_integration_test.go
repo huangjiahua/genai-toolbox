@@ -43,8 +43,12 @@ var (
 const (
 	helloObject = "seed/hello.txt"
 	jsonObject  = "seed/nested/data.json"
+	largeObject = "seed/large.bin"
 	helloBody   = "hello world"
 	jsonBody    = `{"foo":"bar"}`
+	// largeObjectSize is > the 1 MiB read cap so we can assert the size-limit
+	// agent-error path on the read_object tool.
+	largeObjectSize = (1 << 20) + 1024
 )
 
 func getCloudStorageVars(t *testing.T) map[string]any {
@@ -140,6 +144,18 @@ func setupCloudStorageTestData(t *testing.T, ctx context.Context, client *storag
 
 	writeSeed(helloObject, "text/plain", helloBody)
 	writeSeed(jsonObject, "application/json", jsonBody)
+
+	// Seed an oversize object to exercise the read-size cap.
+	large := bytes.Repeat([]byte{'A'}, largeObjectSize)
+	lw := bkt.Object(largeObject).NewWriter(ctx)
+	lw.ContentType = "application/octet-stream"
+	if _, err := lw.Write(large); err != nil {
+		_ = lw.Close()
+		t.Fatalf("failed to write seed object %q: %v", largeObject, err)
+	}
+	if err := lw.Close(); err != nil {
+		t.Fatalf("failed to close writer for seed object %q: %v", largeObject, err)
+	}
 
 	return func(t *testing.T) {
 		cleanupCtx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
@@ -379,6 +395,28 @@ func runCloudStorageReadObjectTest(t *testing.T, bucket string) {
 		}
 		if !strings.Contains(result, "range") {
 			t.Errorf("expected error mentioning 'range', got %s", result)
+		}
+	})
+
+	t.Run("oversize read returns agent error", func(t *testing.T) {
+		result, status := invokeTool(t, "my-read-object",
+			fmt.Sprintf(`{"bucket": %q, "object": %q}`, bucket, largeObject))
+		if status != http.StatusOK {
+			t.Fatalf("expected 200 agent error, got status %d: %s", status, result)
+		}
+		if !strings.Contains(result, "too large") && !strings.Contains(result, "limit") {
+			t.Errorf("expected size-limit error message, got %s", result)
+		}
+	})
+
+	t.Run("oversize read narrowed by range succeeds", func(t *testing.T) {
+		result, status := invokeTool(t, "my-read-object",
+			fmt.Sprintf(`{"bucket": %q, "object": %q, "range": "bytes=0-9"}`, bucket, largeObject))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		if decoded := decodeBase64Field(t, result, "content"); decoded != "AAAAAAAAAA" {
+			t.Errorf("expected 10 'A' bytes, got %q (raw %s)", decoded, result)
 		}
 	})
 }

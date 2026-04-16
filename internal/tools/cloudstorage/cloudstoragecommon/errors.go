@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package cloudstoragecommon holds helpers shared across the Cloud Storage
-// tool implementations.
+// tool implementations, including error classification and read-size limits.
 package cloudstoragecommon
 
 import (
@@ -25,6 +25,16 @@ import (
 	"github.com/googleapis/mcp-toolbox/internal/util"
 	"google.golang.org/api/googleapi"
 )
+
+// DefaultMaxReadBytes is the default cap for ReadObject payloads. Objects (or
+// ranges) larger than this are rejected with ErrReadSizeLimitExceeded so they
+// can't OOM the server or blow an LLM's context window.
+const DefaultMaxReadBytes int64 = 1 << 20 // 1 MiB
+
+// ErrReadSizeLimitExceeded is returned by the source when an object/range would
+// exceed the configured byte limit. ProcessGCSError maps this to an Agent
+// error because the LLM can fix the call by narrowing the 'range' parameter.
+var ErrReadSizeLimitExceeded = errors.New("cloud storage read size limit exceeded")
 
 // ProcessGCSError classifies an error from the Cloud Storage Go client into
 // either an Agent Error (the LLM can self-correct by changing its input — bad
@@ -44,6 +54,13 @@ func ProcessGCSError(err error) util.ToolboxError {
 		return util.NewClientServerError(
 			"cloud storage request cancelled or timed out",
 			http.StatusGatewayTimeout, err)
+	}
+
+	// Read-size cap tripped — agent can narrow the 'range' parameter.
+	if errors.Is(err, ErrReadSizeLimitExceeded) {
+		return util.NewAgentError(
+			"object is too large to read in one call; narrow the 'range' parameter",
+			err)
 	}
 
 	// GCS sentinel errors — "not found" flavours are agent-fixable.

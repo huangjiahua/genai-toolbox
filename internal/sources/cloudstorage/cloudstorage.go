@@ -23,6 +23,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/goccy/go-yaml"
 	"github.com/googleapis/mcp-toolbox/internal/sources"
+	"github.com/googleapis/mcp-toolbox/internal/tools/cloudstorage/cloudstoragecommon"
 	"github.com/googleapis/mcp-toolbox/internal/util"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/api/iterator"
@@ -134,13 +135,21 @@ func (s *Source) ListObjects(ctx context.Context, bucket, prefix, delimiter stri
 // base64-encoded content, its content type, and the number of bytes read.
 // offset and length follow storage.ObjectHandle.NewRangeReader semantics:
 // length == -1 means "read to end of object"; a negative offset means "suffix
-// from end" (in which case length must be -1).
+// from end" (in which case length must be -1). Reads larger than
+// cloudstoragecommon.DefaultMaxReadBytes are rejected with
+// ErrReadSizeLimitExceeded so the caller can narrow the range.
 func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, length int64) (map[string]any, error) {
 	reader, err := s.Client.Bucket(bucket).Object(object).NewRangeReader(ctx, offset, length)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open object %q in bucket %q: %w", object, bucket, err)
 	}
 	defer reader.Close()
+
+	if remain := reader.Remain(); remain > cloudstoragecommon.DefaultMaxReadBytes {
+		return nil, fmt.Errorf("object %q: %d bytes exceeds %d byte limit: %w",
+			object, remain, cloudstoragecommon.DefaultMaxReadBytes,
+			cloudstoragecommon.ErrReadSizeLimitExceeded)
+	}
 
 	data, err := io.ReadAll(reader)
 	if err != nil {
@@ -154,11 +163,14 @@ func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, 
 	}, nil
 }
 
-// pageSize returns the effective page size for pagination. The GCS API defaults
-// to 1000 when a non-positive value is supplied.
+// pageSize returns the effective page size for pagination. The GCS API caps
+// results at 1000 per page; we enforce the same cap here so callers don't
+// pre-allocate larger buffers and so the contract matches the tool's
+// 'max_results' documentation.
 func pageSize(maxResults int) int {
-	if maxResults <= 0 {
-		return 1000
+	const gcsMaxPage = 1000
+	if maxResults <= 0 || maxResults > gcsMaxPage {
+		return gcsMaxPage
 	}
 	return maxResults
 }
