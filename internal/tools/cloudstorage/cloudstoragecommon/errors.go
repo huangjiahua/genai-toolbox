@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package cloudstoragecommon holds helpers shared across the Cloud Storage
-// tool implementations, including error classification and read-size limits.
+// tool implementations, chiefly error classification.
 package cloudstoragecommon
 
 import (
@@ -26,14 +26,10 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
-// DefaultMaxReadBytes is the default cap for ReadObject payloads. Objects (or
-// ranges) larger than this are rejected with ErrReadSizeLimitExceeded so they
-// can't OOM the server or blow an LLM's context window.
-const DefaultMaxReadBytes int64 = 8 << 20 // 8 MiB
-
-// ErrReadSizeLimitExceeded is returned by the source when an object/range would
-// exceed the configured byte limit. ProcessGCSError maps this to an Agent
-// error because the LLM can fix the call by narrowing the 'range' parameter.
+// ErrReadSizeLimitExceeded is returned by the source when an object/range
+// would exceed the source's configured byte limit. ProcessGCSError maps this
+// to an Agent error because the LLM can fix the call by narrowing the 'range'
+// parameter.
 var ErrReadSizeLimitExceeded = errors.New("cloud storage read size limit exceeded")
 
 // ProcessGCSError classifies an error from the Cloud Storage Go client into

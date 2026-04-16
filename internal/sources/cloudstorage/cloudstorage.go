@@ -32,6 +32,11 @@ import (
 
 const SourceType string = "cloud-storage"
 
+// defaultMaxReadBytes caps the payload ReadObject will return per call,
+// protecting the server from OOM and keeping LLM contexts manageable. Objects
+// or ranges exceeding this are rejected with ErrReadSizeLimitExceeded.
+const defaultMaxReadBytes int64 = 8 << 20 // 8 MiB
+
 // validate interface
 var _ sources.SourceConfig = Config{}
 
@@ -136,8 +141,9 @@ func (s *Source) ListObjects(ctx context.Context, bucket, prefix, delimiter stri
 // offset and length follow storage.ObjectHandle.NewRangeReader semantics:
 // length == -1 means "read to end of object"; a negative offset means "suffix
 // from end" (in which case length must be -1). Reads larger than
-// cloudstoragecommon.DefaultMaxReadBytes are rejected with
-// ErrReadSizeLimitExceeded so the caller can narrow the range.
+// defaultMaxReadBytes are rejected with
+// cloudstoragecommon.ErrReadSizeLimitExceeded so the caller can narrow the
+// range.
 func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, length int64) (map[string]any, error) {
 	reader, err := s.Client.Bucket(bucket).Object(object).NewRangeReader(ctx, offset, length)
 	if err != nil {
@@ -145,9 +151,9 @@ func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, 
 	}
 	defer reader.Close()
 
-	if remain := reader.Remain(); remain > cloudstoragecommon.DefaultMaxReadBytes {
+	if remain := reader.Remain(); remain > defaultMaxReadBytes {
 		return nil, fmt.Errorf("object %q: %d bytes exceeds %d byte limit: %w",
-			object, remain, cloudstoragecommon.DefaultMaxReadBytes,
+			object, remain, defaultMaxReadBytes,
 			cloudstoragecommon.ErrReadSizeLimitExceeded)
 	}
 
