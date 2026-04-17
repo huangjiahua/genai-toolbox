@@ -18,6 +18,8 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"unicode/utf8"
 
 	"cloud.google.com/go/storage"
@@ -176,6 +178,90 @@ func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, 
 		"content":     string(data),
 		"contentType": reader.Attrs.ContentType,
 		"size":        len(data),
+	}, nil
+}
+
+// ListBuckets lists buckets in the source's configured project. maxResults
+// == 0 uses the GCS default page size (1000). A non-empty pageToken resumes
+// listing from a prior call. prefix filters buckets whose name starts with
+// it. The returned map contains "buckets" (raw *storage.BucketAttrs entries)
+// and "nextPageToken" (empty when there are no more results).
+func (s *Source) ListBuckets(ctx context.Context, prefix string, maxResults int, pageToken string) (map[string]any, error) {
+	it := s.Client.Buckets(ctx, s.Project)
+	it.Prefix = prefix
+	pager := iterator.NewPager(it, pageSize(maxResults), pageToken)
+
+	var attrsPage []*storage.BucketAttrs
+	nextPageToken, err := pager.NextPage(&attrsPage)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list buckets in project %q: %w", s.Project, err)
+	}
+
+	return map[string]any{
+		"buckets":       attrsPage,
+		"nextPageToken": nextPageToken,
+	}, nil
+}
+
+// GetObjectMetadata fetches an object's attributes without downloading its
+// bytes.
+func (s *Source) GetObjectMetadata(ctx context.Context, bucket, object string) (*storage.ObjectAttrs, error) {
+	attrs, err := s.Client.Bucket(bucket).Object(object).Attrs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch attrs for object %q in bucket %q: %w", object, bucket, err)
+	}
+	return attrs, nil
+}
+
+// GetBucketMetadata fetches a bucket's attributes (location, storage class,
+// labels, versioning, lifecycle, etc.).
+func (s *Source) GetBucketMetadata(ctx context.Context, bucket string) (*storage.BucketAttrs, error) {
+	attrs, err := s.Client.Bucket(bucket).Attrs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch attrs for bucket %q: %w", bucket, err)
+	}
+	return attrs, nil
+}
+
+// DownloadObject streams an object's bytes directly to dest on the local
+// filesystem where toolbox is running. dest is resolved with filepath.Abs +
+// filepath.Clean and its parent directory is created with MkdirAll. The
+// returned map contains the absolute destination path, bytes written, and
+// the object's content type.
+//
+// This tool writes to the toolbox server's filesystem, so it is intended for
+// local MCP-server deployments where the user trusts tool-driven writes in
+// the same way they would a CLI they ran themselves.
+func (s *Source) DownloadObject(ctx context.Context, bucket, object, dest string) (map[string]any, error) {
+	absDest, err := filepath.Abs(filepath.Clean(dest))
+	if err != nil {
+		return nil, fmt.Errorf("failed to resolve destination %q: %w", dest, err)
+	}
+	if err := os.MkdirAll(filepath.Dir(absDest), 0o755); err != nil {
+		return nil, fmt.Errorf("failed to create destination directory for %q: %w", absDest, err)
+	}
+
+	reader, err := s.Client.Bucket(bucket).Object(object).NewReader(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open object %q in bucket %q: %w", object, bucket, err)
+	}
+	defer reader.Close()
+
+	f, err := os.Create(absDest)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create destination file %q: %w", absDest, err)
+	}
+	defer f.Close()
+
+	n, err := io.Copy(f, reader)
+	if err != nil {
+		return nil, fmt.Errorf("failed to write object %q to %q: %w", object, absDest, err)
+	}
+
+	return map[string]any{
+		"destination": absDest,
+		"size":        n,
+		"contentType": reader.Attrs.ContentType,
 	}, nil
 }
 

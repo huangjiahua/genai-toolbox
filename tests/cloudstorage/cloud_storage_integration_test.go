@@ -22,6 +22,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
@@ -103,6 +104,10 @@ func TestCloudStorageToolEndpoints(t *testing.T) {
 	runCloudStorageToolGetTest(t)
 	runCloudStorageListObjectsTest(t, bucketName)
 	runCloudStorageReadObjectTest(t, bucketName)
+	runCloudStorageListBucketsTest(t, bucketName)
+	runCloudStorageGetBucketMetadataTest(t, bucketName)
+	runCloudStorageGetObjectMetadataTest(t, bucketName)
+	runCloudStorageDownloadObjectTest(t, bucketName)
 }
 
 func getCloudStorageToolsConfig(sourceConfig map[string]any) map[string]any {
@@ -120,6 +125,26 @@ func getCloudStorageToolsConfig(sourceConfig map[string]any) map[string]any {
 				"type":        "cloud-storage-read-object",
 				"source":      "my-instance",
 				"description": "Read a Cloud Storage object.",
+			},
+			"my-list-buckets": map[string]any{
+				"type":        "cloud-storage-list-buckets",
+				"source":      "my-instance",
+				"description": "List Cloud Storage buckets in the project.",
+			},
+			"my-get-bucket-metadata": map[string]any{
+				"type":        "cloud-storage-get-bucket-metadata",
+				"source":      "my-instance",
+				"description": "Get metadata for a Cloud Storage bucket.",
+			},
+			"my-get-object-metadata": map[string]any{
+				"type":        "cloud-storage-get-object-metadata",
+				"source":      "my-instance",
+				"description": "Get metadata for a Cloud Storage object.",
+			},
+			"my-download-object": map[string]any{
+				"type":        "cloud-storage-download-object",
+				"source":      "my-instance",
+				"description": "Download a Cloud Storage object to a local file.",
 			},
 		},
 	}
@@ -445,6 +470,100 @@ func runCloudStorageReadObjectTest(t *testing.T, bucket string) {
 		lower := strings.ToLower(result)
 		if !strings.Contains(lower, "binary") && !strings.Contains(lower, "non-text") && !strings.Contains(lower, "utf-8") {
 			t.Errorf("expected binary-content error message, got %s", result)
+		}
+	})
+}
+
+func runCloudStorageListBucketsTest(t *testing.T, bucket string) {
+	t.Run("list buckets includes test bucket", func(t *testing.T) {
+		result, status := invokeTool(t, "my-list-buckets",
+			fmt.Sprintf(`{"prefix": %q}`, bucket))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		if !strings.Contains(result, bucket) {
+			t.Errorf("expected result to contain %q, got %s", bucket, result)
+		}
+	})
+}
+
+func runCloudStorageGetBucketMetadataTest(t *testing.T, bucket string) {
+	t.Run("get bucket metadata", func(t *testing.T) {
+		result, status := invokeTool(t, "my-get-bucket-metadata",
+			fmt.Sprintf(`{"bucket": %q}`, bucket))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		if name := extractStringField(t, result, "Name"); name != bucket {
+			t.Errorf("expected Name %q, got %q (raw %s)", bucket, name, result)
+		}
+		if loc := extractStringField(t, result, "Location"); loc == "" {
+			t.Errorf("expected non-empty Location, got %s", result)
+		}
+	})
+
+	t.Run("nonexistent bucket returns error", func(t *testing.T) {
+		fake := "toolbox-it-does-not-exist-" + strings.ReplaceAll(uuid.New().String(), "-", "")[:12]
+		result, _ := invokeTool(t, "my-get-bucket-metadata",
+			fmt.Sprintf(`{"bucket": %q}`, fake))
+		if !strings.Contains(strings.ToLower(result), "error") && !strings.Contains(result, fake) {
+			t.Errorf("expected error for nonexistent bucket, got %s", result)
+		}
+	})
+}
+
+func runCloudStorageGetObjectMetadataTest(t *testing.T, bucket string) {
+	t.Run("get object metadata", func(t *testing.T) {
+		result, status := invokeTool(t, "my-get-object-metadata",
+			fmt.Sprintf(`{"bucket": %q, "object": %q}`, bucket, helloObject))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		if name := extractStringField(t, result, "Name"); name != helloObject {
+			t.Errorf("expected Name %q, got %q (raw %s)", helloObject, name, result)
+		}
+		if ct := extractStringField(t, result, "ContentType"); ct != "text/plain" {
+			t.Errorf("expected ContentType text/plain, got %q", ct)
+		}
+	})
+
+	t.Run("missing object returns error", func(t *testing.T) {
+		result, _ := invokeTool(t, "my-get-object-metadata",
+			fmt.Sprintf(`{"bucket": %q, "object": "does/not/exist.bin"}`, bucket))
+		if !strings.Contains(strings.ToLower(result), "error") && !strings.Contains(result, "does/not/exist.bin") {
+			t.Errorf("expected error for nonexistent object, got %s", result)
+		}
+	})
+}
+
+func runCloudStorageDownloadObjectTest(t *testing.T, bucket string) {
+	t.Run("download object writes file", func(t *testing.T) {
+		dest := filepath.Join(t.TempDir(), "hello.txt")
+		result, status := invokeTool(t, "my-download-object",
+			fmt.Sprintf(`{"bucket": %q, "object": %q, "destination": %q}`, bucket, helloObject, dest))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		written, err := os.ReadFile(dest)
+		if err != nil {
+			t.Fatalf("failed to read downloaded file %q: %v", dest, err)
+		}
+		if string(written) != helloBody {
+			t.Errorf("expected downloaded content %q, got %q", helloBody, string(written))
+		}
+		if d := extractStringField(t, result, "destination"); d != dest {
+			t.Errorf("expected destination %q in result, got %q (raw %s)", dest, d, result)
+		}
+	})
+
+	t.Run("missing destination returns agent error", func(t *testing.T) {
+		result, status := invokeTool(t, "my-download-object",
+			fmt.Sprintf(`{"bucket": %q, "object": %q}`, bucket, helloObject))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		if !strings.Contains(result, "destination") {
+			t.Errorf("expected error mentioning 'destination', got %s", result)
 		}
 	})
 }
