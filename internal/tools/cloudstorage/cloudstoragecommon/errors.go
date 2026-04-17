@@ -32,6 +32,15 @@ import (
 // parameter.
 var ErrReadSizeLimitExceeded = errors.New("cloud storage read size limit exceeded")
 
+// ErrBinaryContent is returned by the source when an object's bytes are not
+// valid UTF-8. The MCP tool result channel only carries text today, so binary
+// payloads cannot be faithfully round-tripped; ProcessGCSError maps this to an
+// Agent error so the LLM knows to stop asking for this object.
+//
+// TODO: when the toolbox supports non-text MCP content (embedded resources,
+// images, blobs), remove this guard and return binary payloads directly.
+var ErrBinaryContent = errors.New("cloud storage object is not valid UTF-8 text")
+
 // ProcessGCSError classifies an error from the Cloud Storage Go client into
 // either an Agent Error (the LLM can self-correct by changing its input — bad
 // request, missing bucket/object, unsatisfiable range) or a Server Error
@@ -56,6 +65,14 @@ func ProcessGCSError(err error) util.ToolboxError {
 	if errors.Is(err, ErrReadSizeLimitExceeded) {
 		return util.NewAgentError(
 			"object is too large to read in one call; narrow the 'range' parameter",
+			err)
+	}
+
+	// Non-UTF-8 object — MCP only carries text today, so the agent should
+	// stop trying to read this object.
+	if errors.Is(err, ErrBinaryContent) {
+		return util.NewAgentError(
+			"object contains non-text (binary) bytes and cannot be returned; only UTF-8 text objects are supported",
 			err)
 	}
 

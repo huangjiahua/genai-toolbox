@@ -3,23 +3,27 @@ title: "cloud-storage-read-object"
 type: docs
 weight: 2
 description: >
-  A "cloud-storage-read-object" tool reads the content of a Cloud Storage object and returns it as a base64-encoded string, optionally constrained to a byte range.
+  A "cloud-storage-read-object" tool reads the UTF-8 text content of a Cloud Storage object, optionally constrained to a byte range.
 ---
 
 ## About
 
 A `cloud-storage-read-object` tool fetches the bytes of a single
-[Cloud Storage object][gcs-objects] and returns them base64-encoded so that
-arbitrary binary content can be round-tripped through JSON safely.
+[Cloud Storage object][gcs-objects] and returns them as plain UTF-8 text.
+
+Only text objects are supported today: if the object bytes (or the requested
+range) are not valid UTF-8 the tool returns an agent-fixable error. This is
+because the MCP tool-result channel currently only carries text; binary
+payloads will be supported once MCP can carry embedded resources.
 
 Reads are capped at **8 MiB** per call to protect the server's memory and keep
 LLM contexts manageable; objects or ranges larger than that are rejected with
 an agent-fixable error. Use the optional `range` parameter to read a slice of
 a larger object.
 
-This tool is intended for small-to-medium textual or binary content an LLM can
-process directly. For bulk downloads of large files to the local filesystem,
-use `cloud-storage-download-object` (coming in a follow-up release).
+This tool is intended for small-to-medium textual content an LLM can process
+directly. For bulk downloads of large files to the local filesystem, use
+`cloud-storage-download-object` (coming in a follow-up release).
 
 [gcs-objects]: https://cloud.google.com/storage/docs/objects
 

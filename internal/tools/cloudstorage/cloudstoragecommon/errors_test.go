@@ -49,6 +49,7 @@ func TestProcessGCSError_Categorization(t *testing.T) {
 		{desc: "object not exist sentinel", in: storage.ErrObjectNotExist, category: util.CategoryAgent},
 		{desc: "wrapped object not exist", in: fmt.Errorf("wrapped: %w", storage.ErrObjectNotExist), category: util.CategoryAgent},
 		{desc: "read size limit exceeded", in: fmt.Errorf("big: %w", cloudstoragecommon.ErrReadSizeLimitExceeded), category: util.CategoryAgent},
+		{desc: "binary (non-UTF-8) content", in: fmt.Errorf("obj: %w", cloudstoragecommon.ErrBinaryContent), category: util.CategoryAgent},
 		{desc: "400 bad request", in: gcpErr(http.StatusBadRequest), category: util.CategoryAgent},
 		{desc: "401 unauthorized", in: gcpErr(http.StatusUnauthorized), category: util.CategoryServer, code: http.StatusUnauthorized},
 		{desc: "403 forbidden", in: gcpErr(http.StatusForbidden), category: util.CategoryServer, code: http.StatusForbidden},

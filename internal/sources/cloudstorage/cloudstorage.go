@@ -16,9 +16,9 @@ package cloudstorage
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"io"
+	"unicode/utf8"
 
 	"cloud.google.com/go/storage"
 	"github.com/goccy/go-yaml"
@@ -136,14 +136,19 @@ func (s *Source) ListObjects(ctx context.Context, bucket, prefix, delimiter stri
 	}, nil
 }
 
-// ReadObject fetches an object's bytes and returns a map with the
-// base64-encoded content, its content type, and the number of bytes read.
-// offset and length follow storage.ObjectHandle.NewRangeReader semantics:
-// length == -1 means "read to end of object"; a negative offset means "suffix
-// from end" (in which case length must be -1). Reads larger than
-// defaultMaxReadBytes are rejected with
-// cloudstoragecommon.ErrReadSizeLimitExceeded so the caller can narrow the
-// range.
+// ReadObject fetches an object's bytes and returns a map with the UTF-8
+// content, its content type, and the number of bytes read. offset and length
+// follow storage.ObjectHandle.NewRangeReader semantics: length == -1 means
+// "read to end of object"; a negative offset means "suffix from end" (in
+// which case length must be -1). Reads larger than defaultMaxReadBytes are
+// rejected with cloudstoragecommon.ErrReadSizeLimitExceeded so the caller can
+// narrow the range. Objects whose bytes are not valid UTF-8 are rejected
+// with cloudstoragecommon.ErrBinaryContent.
+//
+// TODO: MCP tool results only carry text today, so we gate this tool on
+// utf8.Valid. When the toolbox supports non-text MCP content (embedded
+// resources, images, blobs), expand this to detect content type and return
+// binary payloads natively.
 func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, length int64) (map[string]any, error) {
 	reader, err := s.Client.Bucket(bucket).Object(object).NewRangeReader(ctx, offset, length)
 	if err != nil {
@@ -162,8 +167,13 @@ func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, 
 		return nil, fmt.Errorf("failed to read object %q in bucket %q: %w", object, bucket, err)
 	}
 
+	if !utf8.Valid(data) {
+		return nil, fmt.Errorf("object %q in bucket %q: %w", object, bucket,
+			cloudstoragecommon.ErrBinaryContent)
+	}
+
 	return map[string]any{
-		"content":     base64.StdEncoding.EncodeToString(data),
+		"content":     string(data),
 		"contentType": reader.Attrs.ContentType,
 		"size":        len(data),
 	}, nil

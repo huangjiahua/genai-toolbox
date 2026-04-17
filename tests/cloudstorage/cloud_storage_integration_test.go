@@ -17,7 +17,6 @@ package cloudstorage
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -42,11 +41,12 @@ var (
 )
 
 const (
-	helloObject = "seed/hello.txt"
-	jsonObject  = "seed/nested/data.json"
-	largeObject = "seed/large.bin"
-	helloBody   = "hello world"
-	jsonBody    = `{"foo":"bar"}`
+	helloObject  = "seed/hello.txt"
+	jsonObject   = "seed/nested/data.json"
+	largeObject  = "seed/large.bin"
+	binaryObject = "seed/binary.bin"
+	helloBody    = "hello world"
+	jsonBody     = `{"foo":"bar"}`
 	// largeObjectSize is > the 8 MiB read cap so we can assert the size-limit
 	// agent-error path on the read_object tool.
 	largeObjectSize = (8 << 20) + 1024
@@ -156,6 +156,19 @@ func setupCloudStorageTestData(t *testing.T, ctx context.Context, client *storag
 	}
 	if err := lw.Close(); err != nil {
 		t.Fatalf("failed to close writer for seed object %q: %v", largeObject, err)
+	}
+
+	// Seed a small binary (non-UTF-8) object to exercise the
+	// ErrBinaryContent path on read_object.
+	binary := []byte{0xff, 0xfe, 0xfd, 0xfc}
+	bw := bkt.Object(binaryObject).NewWriter(ctx)
+	bw.ContentType = "application/octet-stream"
+	if _, err := bw.Write(binary); err != nil {
+		_ = bw.Close()
+		t.Fatalf("failed to write seed object %q: %v", binaryObject, err)
+	}
+	if err := bw.Close(); err != nil {
+		t.Fatalf("failed to close writer for seed object %q: %v", binaryObject, err)
 	}
 
 	return func(t *testing.T) {
@@ -330,9 +343,8 @@ func runCloudStorageReadObjectTest(t *testing.T, bucket string) {
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result)
 		}
-		decoded := decodeBase64Field(t, result, "content")
-		if decoded != helloBody {
-			t.Errorf("expected %q, got %q (raw %s)", helloBody, decoded, result)
+		if content := extractStringField(t, result, "content"); content != helloBody {
+			t.Errorf("expected %q, got %q (raw %s)", helloBody, content, result)
 		}
 		if ct := extractStringField(t, result, "contentType"); ct != "text/plain" {
 			t.Errorf("expected contentType text/plain, got %q", ct)
@@ -345,8 +357,8 @@ func runCloudStorageReadObjectTest(t *testing.T, bucket string) {
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result)
 		}
-		if decoded := decodeBase64Field(t, result, "content"); decoded != "hello" {
-			t.Errorf("expected %q, got %q (raw %s)", "hello", decoded, result)
+		if content := extractStringField(t, result, "content"); content != "hello" {
+			t.Errorf("expected %q, got %q (raw %s)", "hello", content, result)
 		}
 	})
 
@@ -356,8 +368,8 @@ func runCloudStorageReadObjectTest(t *testing.T, bucket string) {
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result)
 		}
-		if decoded := decodeBase64Field(t, result, "content"); decoded != "world" {
-			t.Errorf("expected %q, got %q (raw %s)", "world", decoded, result)
+		if content := extractStringField(t, result, "content"); content != "world" {
+			t.Errorf("expected %q, got %q (raw %s)", "world", content, result)
 		}
 	})
 
@@ -367,8 +379,8 @@ func runCloudStorageReadObjectTest(t *testing.T, bucket string) {
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result)
 		}
-		if decoded := decodeBase64Field(t, result, "content"); decoded != "world" {
-			t.Errorf("expected %q, got %q (raw %s)", "world", decoded, result)
+		if content := extractStringField(t, result, "content"); content != "world" {
+			t.Errorf("expected %q, got %q (raw %s)", "world", content, result)
 		}
 	})
 
@@ -419,8 +431,20 @@ func runCloudStorageReadObjectTest(t *testing.T, bucket string) {
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result)
 		}
-		if decoded := decodeBase64Field(t, result, "content"); decoded != "AAAAAAAAAA" {
-			t.Errorf("expected 10 'A' bytes, got %q (raw %s)", decoded, result)
+		if content := extractStringField(t, result, "content"); content != "AAAAAAAAAA" {
+			t.Errorf("expected 10 'A' bytes, got %q (raw %s)", content, result)
+		}
+	})
+
+	t.Run("binary object returns agent error", func(t *testing.T) {
+		result, status := invokeTool(t, "my-read-object",
+			fmt.Sprintf(`{"bucket": %q, "object": %q}`, bucket, binaryObject))
+		if status != http.StatusOK {
+			t.Fatalf("expected 200 agent error, got status %d: %s", status, result)
+		}
+		lower := strings.ToLower(result)
+		if !strings.Contains(lower, "binary") && !strings.Contains(lower, "non-text") && !strings.Contains(lower, "utf-8") {
+			t.Errorf("expected binary-content error message, got %s", result)
 		}
 	})
 }
@@ -435,16 +459,4 @@ func extractStringField(t *testing.T, result, field string) string {
 	}
 	v, _ := parsed[field].(string)
 	return v
-}
-
-// decodeBase64Field extracts a base64-encoded string field and returns its
-// decoded UTF-8 value, failing the test if decoding fails.
-func decodeBase64Field(t *testing.T, result, field string) string {
-	t.Helper()
-	encoded := extractStringField(t, result, field)
-	decoded, err := base64.StdEncoding.DecodeString(encoded)
-	if err != nil {
-		t.Fatalf("failed to base64-decode field %q: %s (encoded=%s)", field, err, encoded)
-	}
-	return string(decoded)
 }
