@@ -278,6 +278,28 @@ func runCloudStorageListObjectsTest(t *testing.T, bucket string) {
 		}
 	})
 
+	t.Run("empty prefix and delimiter lists all objects", func(t *testing.T) {
+		result, status := invokeTool(t, "my-list-objects",
+			fmt.Sprintf(`{"bucket": %q, "prefix": "", "delimiter": ""}`, bucket))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		if !strings.Contains(result, helloObject) || !strings.Contains(result, jsonObject) {
+			t.Errorf("expected unfiltered listing to include both seed objects, got %s", result)
+		}
+	})
+
+	t.Run("empty page_token behaves as first page", func(t *testing.T) {
+		result, status := invokeTool(t, "my-list-objects",
+			fmt.Sprintf(`{"bucket": %q, "prefix": "seed/", "page_token": ""}`, bucket))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		if !strings.Contains(result, helloObject) || !strings.Contains(result, jsonObject) {
+			t.Errorf("expected empty page_token to return first page with both seed objects, got %s", result)
+		}
+	})
+
 	t.Run("list with delimiter returns prefixes", func(t *testing.T) {
 		result, status := invokeTool(t, "my-list-objects",
 			fmt.Sprintf(`{"bucket": %q, "prefix": "seed/", "delimiter": "/"}`, bucket))
