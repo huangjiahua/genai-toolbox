@@ -72,7 +72,7 @@ func (r Config) Initialize(ctx context.Context, tracer trace.Tracer) (sources.So
 
 	s := &Source{
 		Config: r,
-		Client: client,
+		client: client,
 	}
 	return s, nil
 }
@@ -81,7 +81,7 @@ var _ sources.Source = &Source{}
 
 type Source struct {
 	Config
-	Client *storage.Client
+	client *storage.Client
 }
 
 func (s *Source) SourceType() string {
@@ -93,7 +93,7 @@ func (s *Source) ToConfig() sources.SourceConfig {
 }
 
 func (s *Source) StorageClient() *storage.Client {
-	return s.Client
+	return s.client
 }
 
 func (s *Source) GetProjectID() string {
@@ -107,7 +107,7 @@ func (s *Source) GetProjectID() string {
 // (common prefixes when a delimiter is set), and "nextPageToken" (empty when
 // there are no more results).
 func (s *Source) ListObjects(ctx context.Context, bucket, prefix, delimiter string, maxResults int, pageToken string) (map[string]any, error) {
-	it := s.Client.Bucket(bucket).Objects(ctx, &storage.Query{
+	it := s.client.Bucket(bucket).Objects(ctx, &storage.Query{
 		Prefix:    prefix,
 		Delimiter: delimiter,
 	})
@@ -150,7 +150,7 @@ func (s *Source) ListObjects(ctx context.Context, bucket, prefix, delimiter stri
 // resources, images, blobs), expand this to detect content type and return
 // binary payloads natively.
 func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, length int64) (map[string]any, error) {
-	reader, err := s.Client.Bucket(bucket).Object(object).NewRangeReader(ctx, offset, length)
+	reader, err := s.client.Bucket(bucket).Object(object).NewRangeReader(ctx, offset, length)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open object %q in bucket %q: %w", object, bucket, err)
 	}
