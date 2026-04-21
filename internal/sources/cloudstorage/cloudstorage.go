@@ -111,7 +111,13 @@ func (s *Source) ListObjects(ctx context.Context, bucket, prefix, delimiter stri
 		Prefix:    prefix,
 		Delimiter: delimiter,
 	})
-	pager := iterator.NewPager(it, pageSize(maxResults), pageToken)
+	// iterator.NewPager errors on pageSize <= 0; the tool layer already rejects
+	// values above the GCS per-page cap of 1000, so any positive value is safe.
+	ps := maxResults
+	if ps <= 0 {
+		ps = 1000
+	}
+	pager := iterator.NewPager(it, ps, pageToken)
 
 	var attrsPage []*storage.ObjectAttrs
 	nextPageToken, err := pager.NextPage(&attrsPage)
@@ -177,18 +183,6 @@ func (s *Source) ReadObject(ctx context.Context, bucket, object string, offset, 
 		"contentType": reader.Attrs.ContentType,
 		"size":        len(data),
 	}, nil
-}
-
-// pageSize returns the effective page size for pagination. The GCS API caps
-// results at 1000 per page; we enforce the same cap here so callers don't
-// pre-allocate larger buffers and so the contract matches the tool's
-// 'max_results' documentation.
-func pageSize(maxResults int) int {
-	const gcsMaxPage = 1000
-	if maxResults <= 0 || maxResults > gcsMaxPage {
-		return gcsMaxPage
-	}
-	return maxResults
 }
 
 func initGCSClient(ctx context.Context, tracer trace.Tracer, name, project string) (*storage.Client, error) {

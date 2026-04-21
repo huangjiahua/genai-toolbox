@@ -101,22 +101,3 @@ func TestFailParseFromYaml(t *testing.T) {
 	}
 }
 
-func TestPageSize(t *testing.T) {
-	tcs := []struct {
-		in   int
-		want int
-	}{
-		{in: 0, want: 1000},
-		{in: -1, want: 1000},
-		{in: 1, want: 1},
-		{in: 500, want: 500},
-		{in: 1000, want: 1000},
-		{in: 1001, want: 1000},
-		{in: 1_000_000, want: 1000},
-	}
-	for _, tc := range tcs {
-		if got := pageSize(tc.in); got != tc.want {
-			t.Errorf("pageSize(%d) = %d, want %d", tc.in, got, tc.want)
-		}
-	}
-}
