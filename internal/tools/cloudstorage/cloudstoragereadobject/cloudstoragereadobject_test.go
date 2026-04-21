@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cloudstoragereadobject_test
+package cloudstoragereadobject
 
 import (
 	"testing"
@@ -20,7 +20,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/googleapis/mcp-toolbox/internal/server"
 	"github.com/googleapis/mcp-toolbox/internal/testutils"
-	"github.com/googleapis/mcp-toolbox/internal/tools/cloudstorage/cloudstoragereadobject"
 )
 
 func TestParseFromYamlCloudStorageReadObject(t *testing.T) {
@@ -43,7 +42,7 @@ func TestParseFromYamlCloudStorageReadObject(t *testing.T) {
 			description: Read a Cloud Storage object
 			`,
 			want: server.ToolConfigs{
-				"read_object_tool": cloudstoragereadobject.Config{
+				"read_object_tool": Config{
 					Name:         "read_object_tool",
 					Type:         "cloud-storage-read-object",
 					Source:       "my-gcs",
@@ -64,7 +63,7 @@ func TestParseFromYamlCloudStorageReadObject(t *testing.T) {
 				- google-auth-service
 			`,
 			want: server.ToolConfigs{
-				"secure_read_object": cloudstoragereadobject.Config{
+				"secure_read_object": Config{
 					Name:         "secure_read_object",
 					Type:         "cloud-storage-read-object",
 					Source:       "prod-gcs",
@@ -82,6 +81,47 @@ func TestParseFromYamlCloudStorageReadObject(t *testing.T) {
 			}
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Fatalf("incorrect parse: diff %v", diff)
+			}
+		})
+	}
+}
+
+func TestParseRange(t *testing.T) {
+	tcs := []struct {
+		in         string
+		wantOffset int64
+		wantLength int64
+		wantErr    bool
+	}{
+		{in: "", wantOffset: 0, wantLength: -1},
+		{in: "bytes=0-9", wantOffset: 0, wantLength: 10},
+		{in: "bytes=10-19", wantOffset: 10, wantLength: 10},
+		{in: "bytes=10-", wantOffset: 10, wantLength: -1},
+		{in: "bytes=-5", wantOffset: -5, wantLength: -1},
+		{in: "bytes=0-0", wantOffset: 0, wantLength: 1},
+
+		{in: "garbage", wantErr: true},
+		{in: "bytes=", wantErr: true},
+		{in: "bytes=a-b", wantErr: true},
+		{in: "bytes=-", wantErr: true},
+		{in: "bytes=-0", wantErr: true},
+		{in: "bytes=5-2", wantErr: true},
+		{in: "bytes=-1-2", wantErr: true},
+	}
+	for _, tc := range tcs {
+		t.Run(tc.in, func(t *testing.T) {
+			offset, length, err := parseRange(tc.in)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatalf("expected error, got offset=%d length=%d", offset, length)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if offset != tc.wantOffset || length != tc.wantLength {
+				t.Fatalf("got (%d, %d), want (%d, %d)", offset, length, tc.wantOffset, tc.wantLength)
 			}
 		})
 	}
