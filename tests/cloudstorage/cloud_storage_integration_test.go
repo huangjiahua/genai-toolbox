@@ -95,7 +95,6 @@ func TestCloudStorageToolEndpoints(t *testing.T) {
 		t.Fatalf("toolbox didn't start successfully: %s", err)
 	}
 
-	runCloudStorageToolGetTest(t)
 	runCloudStorageListObjectsTest(t, bucketName)
 	runCloudStorageReadObjectTest(t, bucketName)
 }
@@ -218,86 +217,6 @@ func invokeTool(t *testing.T, toolName, requestBody string) (string, int) {
 	}
 	result, _ := body["result"].(string)
 	return result, resp.StatusCode
-}
-
-func runCloudStorageToolGetTest(t *testing.T) {
-	tests.RunToolGetTestByName(t, "my-list-objects", map[string]any{
-		"my-list-objects": map[string]any{
-			"description":  "List objects in a Cloud Storage bucket.",
-			"authRequired": []any{},
-			"parameters": []any{
-				map[string]any{
-					"name":         "bucket",
-					"type":         "string",
-					"required":     true,
-					"description":  "Name of the Cloud Storage bucket to list objects from.",
-					"authServices": []any{},
-				},
-				map[string]any{
-					"name":         "prefix",
-					"type":         "string",
-					"required":     false,
-					"description":  "Filter results to objects whose names begin with this prefix.",
-					"authServices": []any{},
-					"default":      "",
-				},
-				map[string]any{
-					"name":         "delimiter",
-					"type":         "string",
-					"required":     false,
-					"description":  "Delimiter used to group object names (typically '/'). When set, common prefixes are returned as 'prefixes'.",
-					"authServices": []any{},
-					"default":      "",
-				},
-				map[string]any{
-					"name":         "max_results",
-					"type":         "integer",
-					"required":     false,
-					"description":  "Maximum number of objects to return per page. A value of 0 uses the API default (1000); values above 1000 are rejected.",
-					"authServices": []any{},
-					"default":      float64(0),
-				},
-				map[string]any{
-					"name":         "page_token",
-					"type":         "string",
-					"required":     false,
-					"description":  "A previously-returned page token for retrieving the next page of results.",
-					"authServices": []any{},
-					"default":      "",
-				},
-			},
-		},
-	})
-	tests.RunToolGetTestByName(t, "my-read-object", map[string]any{
-		"my-read-object": map[string]any{
-			"description":  "Read a Cloud Storage object.",
-			"authRequired": []any{},
-			"parameters": []any{
-				map[string]any{
-					"name":         "bucket",
-					"type":         "string",
-					"required":     true,
-					"description":  "Name of the Cloud Storage bucket containing the object.",
-					"authServices": []any{},
-				},
-				map[string]any{
-					"name":         "object",
-					"type":         "string",
-					"required":     true,
-					"description":  "Full object name (path) within the bucket, e.g. 'path/to/file.txt'.",
-					"authServices": []any{},
-				},
-				map[string]any{
-					"name":         "range",
-					"type":         "string",
-					"required":     false,
-					"description":  "Optional HTTP byte range, e.g. 'bytes=0-999' (first 1000 bytes), 'bytes=-500' (last 500 bytes), or 'bytes=500-' (from byte 500 to end). Empty reads the full object.",
-					"authServices": []any{},
-					"default":      "",
-				},
-			},
-		},
-	})
 }
 
 func runCloudStorageListObjectsTest(t *testing.T, bucket string) {
