@@ -326,6 +326,17 @@ func runCloudStorageListObjectsTest(t *testing.T, bucket string) {
 		}
 	})
 
+	t.Run("max_results above 1000 returns agent error", func(t *testing.T) {
+		result, status := invokeTool(t, "my-list-objects",
+			fmt.Sprintf(`{"bucket": %q, "max_results": 1001}`, bucket))
+		if status != http.StatusOK {
+			t.Fatalf("unexpected status %d: %s", status, result)
+		}
+		if !strings.Contains(result, "max_results") || !strings.Contains(result, "1000") {
+			t.Errorf("expected error mentioning 'max_results' and '1000', got %s", result)
+		}
+	})
+
 	t.Run("nonexistent bucket returns error", func(t *testing.T) {
 		fake := "toolbox-it-does-not-exist-" + strings.ReplaceAll(uuid.New().String(), "-", "")[:12]
 		result, _ := invokeTool(t, "my-list-objects",

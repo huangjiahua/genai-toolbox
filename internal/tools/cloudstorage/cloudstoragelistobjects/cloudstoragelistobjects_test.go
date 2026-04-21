@@ -15,12 +15,18 @@
 package cloudstoragelistobjects_test
 
 import (
+	"context"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/googleapis/mcp-toolbox/internal/server"
+	"github.com/googleapis/mcp-toolbox/internal/sources"
 	"github.com/googleapis/mcp-toolbox/internal/testutils"
+	"github.com/googleapis/mcp-toolbox/internal/tools"
 	"github.com/googleapis/mcp-toolbox/internal/tools/cloudstorage/cloudstoragelistobjects"
+	"github.com/googleapis/mcp-toolbox/internal/util"
+	"github.com/googleapis/mcp-toolbox/internal/util/parameters"
 )
 
 func TestParseFromYamlCloudStorageListObjects(t *testing.T) {
@@ -85,5 +91,62 @@ func TestParseFromYamlCloudStorageListObjects(t *testing.T) {
 				t.Fatalf("incorrect parse: diff %v", diff)
 			}
 		})
+	}
+}
+
+type mockSource struct {
+	sources.Source
+	listCalled bool
+}
+
+func (m *mockSource) ListObjects(ctx context.Context, bucket, prefix, delimiter string, maxResults int, pageToken string) (map[string]any, error) {
+	m.listCalled = true
+	return map[string]any{"objects": []any{}, "prefixes": []string{}, "nextPageToken": ""}, nil
+}
+
+type mockSourceProvider struct {
+	tools.SourceProvider
+	source *mockSource
+}
+
+func (m *mockSourceProvider) GetSource(name string) (sources.Source, bool) {
+	return m.source, true
+}
+
+func TestInvokeMaxResultsValidation(t *testing.T) {
+	cfg := cloudstoragelistobjects.Config{
+		Name:        "list_objects_tool",
+		Type:        "cloud-storage-list-objects",
+		Source:      "my-gcs",
+		Description: "List objects",
+	}
+	tool, err := cfg.Initialize(nil)
+	if err != nil {
+		t.Fatalf("failed to initialize tool: %v", err)
+	}
+
+	src := &mockSource{}
+	resourceMgr := &mockSourceProvider{source: src}
+
+	params := parameters.ParamValues{
+		{Name: "bucket", Value: "my-bucket"},
+		{Name: "prefix", Value: ""},
+		{Name: "delimiter", Value: ""},
+		{Name: "max_results", Value: 1001},
+		{Name: "page_token", Value: ""},
+	}
+
+	_, toolErr := tool.Invoke(context.Background(), resourceMgr, params, "")
+	if toolErr == nil {
+		t.Fatalf("expected error for max_results=1001, got nil")
+	}
+	if _, ok := toolErr.(*util.AgentError); !ok {
+		t.Fatalf("expected *util.AgentError, got %T: %v", toolErr, toolErr)
+	}
+	if !strings.Contains(toolErr.Error(), "max_results") || !strings.Contains(toolErr.Error(), "1000") {
+		t.Fatalf("expected error to reference max_results and the 1000 limit, got: %v", toolErr)
+	}
+	if src.listCalled {
+		t.Errorf("expected ListObjects not to be called when validation fails")
 	}
 }
