@@ -32,7 +32,6 @@ import (
 	"github.com/googleapis/mcp-toolbox/internal/testutils"
 	"github.com/googleapis/mcp-toolbox/tests"
 	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
 )
 
 var (
@@ -62,16 +61,12 @@ func getCloudStorageVars(t *testing.T) map[string]any {
 	}
 }
 
-func initStorageClient(ctx context.Context) (*storage.Client, error) {
-	return storage.NewClient(ctx, option.WithUserAgent("genai-toolbox-integration-test"))
-}
-
 func TestCloudStorageToolEndpoints(t *testing.T) {
 	sourceConfig := getCloudStorageVars(t)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
-	client, err := initStorageClient(ctx)
+	client, err := storage.NewClient(ctx)
 	if err != nil {
 		t.Fatalf("unable to create Cloud Storage client: %s", err)
 	}
