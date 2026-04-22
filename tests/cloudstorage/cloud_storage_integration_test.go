@@ -95,6 +95,88 @@ func TestCloudStorageToolEndpoints(t *testing.T) {
 		t.Fatalf("toolbox didn't start successfully: %s", err)
 	}
 
+	tests.RunToolGetTestByName(t, "my_list_objects",
+		map[string]any{
+			"my_list_objects": map[string]any{
+				"description":  "List objects in a Cloud Storage bucket.",
+				"authRequired": []any{},
+				"parameters": []any{
+					map[string]any{
+						"authServices": []any{},
+						"description":  "Name of the Cloud Storage bucket to list objects from.",
+						"name":         "bucket",
+						"required":     true,
+						"type":         "string",
+					},
+					map[string]any{
+						"authServices": []any{},
+						"description":  "Filter results to objects whose names begin with this prefix.",
+						"name":         "prefix",
+						"required":     false,
+						"type":         "string",
+						"default":      "",
+					},
+					map[string]any{
+						"authServices": []any{},
+						"description":  "Delimiter used to group object names (typically '/'). When set, common prefixes are returned as 'prefixes'.",
+						"name":         "delimiter",
+						"required":     false,
+						"type":         "string",
+						"default":      "",
+					},
+					map[string]any{
+						"authServices": []any{},
+						"description":  "Maximum number of objects to return per page. A value of 0 uses the API default (1000); values above 1000 are rejected.",
+						"name":         "max_results",
+						"required":     false,
+						"type":         "integer",
+						"default":      float64(0),
+					},
+					map[string]any{
+						"authServices": []any{},
+						"description":  "A previously-returned page token for retrieving the next page of results.",
+						"name":         "page_token",
+						"required":     false,
+						"type":         "string",
+						"default":      "",
+					},
+				},
+			},
+		},
+	)
+	tests.RunToolGetTestByName(t, "my_read_object",
+		map[string]any{
+			"my_read_object": map[string]any{
+				"description":  "Read a Cloud Storage object.",
+				"authRequired": []any{},
+				"parameters": []any{
+					map[string]any{
+						"authServices": []any{},
+						"description":  "Name of the Cloud Storage bucket containing the object.",
+						"name":         "bucket",
+						"required":     true,
+						"type":         "string",
+					},
+					map[string]any{
+						"authServices": []any{},
+						"description":  "Full object name (path) within the bucket, e.g. 'path/to/file.txt'.",
+						"name":         "object",
+						"required":     true,
+						"type":         "string",
+					},
+					map[string]any{
+						"authServices": []any{},
+						"description":  "Optional HTTP byte range, e.g. 'bytes=0-999' (first 1000 bytes), 'bytes=-500' (last 500 bytes), or 'bytes=500-' (from byte 500 to end). Empty reads the full object.",
+						"name":         "range",
+						"required":     false,
+						"type":         "string",
+						"default":      "",
+					},
+				},
+			},
+		},
+	)
+
 	runCloudStorageListObjectsTest(t, bucketName)
 	runCloudStorageReadObjectTest(t, bucketName)
 }
@@ -102,17 +184,17 @@ func TestCloudStorageToolEndpoints(t *testing.T) {
 func getCloudStorageToolsConfig(sourceConfig map[string]any) map[string]any {
 	return map[string]any{
 		"sources": map[string]any{
-			"my-instance": sourceConfig,
+			"my_instance": sourceConfig,
 		},
 		"tools": map[string]any{
-			"my-list-objects": map[string]any{
+			"my_list_objects": map[string]any{
 				"type":        "cloud-storage-list-objects",
-				"source":      "my-instance",
+				"source":      "my_instance",
 				"description": "List objects in a Cloud Storage bucket.",
 			},
-			"my-read-object": map[string]any{
+			"my_read_object": map[string]any{
 				"type":        "cloud-storage-read-object",
-				"source":      "my-instance",
+				"source":      "my_instance",
 				"description": "Read a Cloud Storage object.",
 			},
 		},
@@ -264,7 +346,7 @@ func runCloudStorageListObjectsTest(t *testing.T, bucket string) {
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			result, status := invokeTool(t, "my-list-objects", tc.body)
+			result, status := invokeTool(t, "my_list_objects", tc.body)
 			if status != http.StatusOK {
 				t.Fatalf("unexpected status %d: %s", status, result)
 			}
@@ -279,7 +361,7 @@ func runCloudStorageListObjectsTest(t *testing.T, bucket string) {
 	// Pagination is inherently two-step (fetch page one, reuse its token for
 	// page two), so it doesn't fit the single-request table above.
 	t.Run("pagination via max_results and page_token", func(t *testing.T) {
-		result, status := invokeTool(t, "my-list-objects",
+		result, status := invokeTool(t, "my_list_objects",
 			fmt.Sprintf(`{"bucket": %q, "prefix": "seed/", "max_results": 1}`, bucket))
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result)
@@ -289,7 +371,7 @@ func runCloudStorageListObjectsTest(t *testing.T, bucket string) {
 			t.Fatalf("expected non-empty nextPageToken, got %s", result)
 		}
 
-		result2, status := invokeTool(t, "my-list-objects",
+		result2, status := invokeTool(t, "my_list_objects",
 			fmt.Sprintf(`{"bucket": %q, "prefix": "seed/", "page_token": %q}`, bucket, token))
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result2)
@@ -364,7 +446,7 @@ func runCloudStorageReadObjectTest(t *testing.T, bucket string) {
 	}
 	for _, tc := range tcs {
 		t.Run(tc.name, func(t *testing.T) {
-			result, status := invokeTool(t, "my-read-object", tc.body)
+			result, status := invokeTool(t, "my_read_object", tc.body)
 			if status != http.StatusOK {
 				t.Fatalf("unexpected status %d: %s", status, result)
 			}
