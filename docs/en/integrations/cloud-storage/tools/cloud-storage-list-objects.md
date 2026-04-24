@@ -1,7 +1,7 @@
 ---
 title: "cloud-storage-list-objects"
 type: docs
-weight: 1
+weight: 2
 description: >
   A "cloud-storage-list-objects" tool lists objects in a Cloud Storage bucket, with optional prefix filtering and delimiter-based grouping.
 ---
