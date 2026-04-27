@@ -36,7 +36,7 @@ destination already exists.
 | bucket        |  string  |     true     | Name of the Cloud Storage bucket containing the object.                                                 |
 | object        |  string  |     true     | Full object name (path) within the bucket, e.g. `path/to/file.txt`.                                     |
 | destination   |  string  |     true     | Absolute local filesystem path where the object will be written. Relative paths and paths containing `..` are rejected. |
-| overwrite     | boolean  |    false     | If true, overwrite the destination when it already exists. If false, return an error when it exists.     |
+| overwrite     | boolean  |    false     | If true, overwrite the destination when it already exists. If false (default), return an error when it exists.     |
 
 ## Example
 
