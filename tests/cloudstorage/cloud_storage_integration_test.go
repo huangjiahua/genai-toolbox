@@ -129,7 +129,7 @@ func TestCloudStorageToolEndpoints(t *testing.T) {
 					},
 					map[string]any{
 						"authServices": []any{},
-						"description":  "Maximum number of objects to return per page. A value of 0 uses the API default (1000); values above 1000 are rejected.",
+						"description":  "Maximum number of objects to return per page. A value of 0 uses the API default (1000); negative values and values above 1000 are rejected.",
 						"name":         "max_results",
 						"required":     false,
 						"type":         "integer",
@@ -204,7 +204,7 @@ func TestCloudStorageToolEndpoints(t *testing.T) {
 					},
 					map[string]any{
 						"authServices": []any{},
-						"description":  "Maximum number of buckets to return per page. A value of 0 uses the API default (1000); values above 1000 are rejected.",
+						"description":  "Maximum number of buckets to return per page. A value of 0 uses the API default (1000); negative values and values above 1000 are rejected.",
 						"name":         "max_results",
 						"required":     false,
 						"type":         "integer",
@@ -512,6 +512,11 @@ func runCloudStorageListObjectsTest(t *testing.T, bucket string) {
 			wantSubstrings: []string{"max_results", "1000"},
 		},
 		{
+			name:           "negative max_results returns agent error",
+			body:           fmt.Sprintf(`{"bucket": %q, "max_results": -1}`, bucket),
+			wantSubstrings: []string{"max_results", "must be"},
+		},
+		{
 			name:           "nonexistent bucket returns error",
 			body:           fmt.Sprintf(`{"bucket": %q}`, fakeBucket),
 			wantSubstrings: []string{fakeBucket},
@@ -680,6 +685,11 @@ func runCloudStorageListBucketsTest(t *testing.T, bucket string) {
 			name:           "max_results above 1000 returns agent error",
 			body:           `{"max_results": 1001}`,
 			wantSubstrings: []string{"max_results", "1000"},
+		},
+		{
+			name:           "negative max_results returns agent error",
+			body:           `{"max_results": -1}`,
+			wantSubstrings: []string{"max_results", "must be"},
 		},
 	}
 	for _, tc := range tcs {

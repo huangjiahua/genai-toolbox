@@ -28,7 +28,7 @@ Cloud Storage API) and `nextPageToken` (empty when there are no more pages).
 |---------------|:--------:|:------------:|-------------------------------------------------------------------------------------------------------------------|
 | project       |  string  |    false     | Project ID to list buckets in. When empty, the source's configured project is used.                               |
 | prefix        |  string  |    false     | Filter results to buckets whose names begin with this prefix.                                                     |
-| max_results   | integer  |    false     | Maximum number of buckets to return per page. A value of 0 uses the API default (1000); values above 1000 are rejected. |
+| max_results   | integer  |    false     | Maximum number of buckets to return per page. A value of 0 uses the API default (1000); negative values and values above 1000 are rejected. |
 | page_token    |  string  |    false     | A previously-returned page token for retrieving the next page of results.                                         |
 
 ## Example

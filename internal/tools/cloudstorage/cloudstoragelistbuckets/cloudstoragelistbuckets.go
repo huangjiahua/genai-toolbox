@@ -78,7 +78,7 @@ func (cfg Config) ToolConfigType() string {
 func (cfg Config) Initialize(srcs map[string]sources.Source) (tools.Tool, error) {
 	projectParam := parameters.NewStringParameterWithDefault(projectKey, "", "Project ID to list buckets in. When empty, the source's configured project is used.")
 	prefixParam := parameters.NewStringParameterWithDefault(prefixKey, "", "Filter results to buckets whose names begin with this prefix.")
-	maxResultsParam := parameters.NewIntParameterWithDefault(maxResultsKey, 0, "Maximum number of buckets to return per page. A value of 0 uses the API default (1000); values above 1000 are rejected.")
+	maxResultsParam := parameters.NewIntParameterWithDefault(maxResultsKey, 0, "Maximum number of buckets to return per page. A value of 0 uses the API default (1000); negative values and values above 1000 are rejected.")
 	pageTokenParam := parameters.NewStringParameterWithDefault(pageTokenKey, "", "A previously-returned page token for retrieving the next page of results.")
 	params := parameters.Parameters{projectParam, prefixParam, maxResultsParam, pageTokenParam}
 
@@ -119,6 +119,9 @@ func (t Tool) Invoke(ctx context.Context, resourceMgr tools.SourceProvider, para
 	prefix, _ := mapParams[prefixKey].(string)
 	pageToken, _ := mapParams[pageTokenKey].(string)
 	maxResults, _ := mapParams[maxResultsKey].(int)
+	if maxResults < 0 {
+		return nil, util.NewAgentError(fmt.Sprintf("invalid '%s' parameter: %d must be >= 0 (use 0 for the API default)", maxResultsKey, maxResults), nil)
+	}
 	if maxResults > maxResultsLimit {
 		return nil, util.NewAgentError(fmt.Sprintf("invalid '%s' parameter: %d exceeds the maximum of %d", maxResultsKey, maxResults, maxResultsLimit), nil)
 	}
