@@ -135,16 +135,20 @@ func initTool(t *testing.T) tools.Tool {
 
 func TestInvokeValidationAndForwarding(t *testing.T) {
 	tcs := []struct {
-		desc       string
-		bucket     any
-		location   any
-		uniform    any
-		wantErr    bool
-		wantCalled bool
-		wantSubstr string
+		desc        string
+		bucket      any
+		location    any
+		uniform     any
+		wantErr     bool
+		wantCalled  bool
+		wantBucket  string
+		wantLoc     string
+		wantUniform bool
+		wantSubstr  string
 	}{
 		{desc: "missing bucket", bucket: "", location: "US", uniform: false, wantErr: true, wantSubstr: "bucket"},
-		{desc: "happy path", bucket: "b", location: "EU", uniform: true, wantCalled: true},
+		{desc: "happy path", bucket: "b", location: "EU", uniform: true, wantCalled: true, wantBucket: "b", wantLoc: "EU", wantUniform: true},
+		{desc: "omitted location", bucket: "b", uniform: false, wantCalled: true, wantBucket: "b"},
 	}
 	for _, tc := range tcs {
 		t.Run(tc.desc, func(t *testing.T) {
@@ -153,8 +157,10 @@ func TestInvokeValidationAndForwarding(t *testing.T) {
 			resourceMgr := &mockSourceProvider{source: src}
 			params := parameters.ParamValues{
 				{Name: "bucket", Value: tc.bucket},
-				{Name: "location", Value: tc.location},
 				{Name: "uniform_bucket_level_access", Value: tc.uniform},
+			}
+			if tc.location != nil {
+				params = append(params, parameters.ParamValue{Name: "location", Value: tc.location})
 			}
 			_, toolErr := tool.Invoke(context.Background(), resourceMgr, params, "")
 			if tc.wantErr {
@@ -178,7 +184,7 @@ func TestInvokeValidationAndForwarding(t *testing.T) {
 			if src.called != tc.wantCalled {
 				t.Errorf("called = %v, want %v", src.called, tc.wantCalled)
 			}
-			if src.gotBucket != tc.bucket || src.gotLocation != tc.location || src.gotUniformBucketLevelAccess != tc.uniform {
+			if src.gotBucket != tc.wantBucket || src.gotLocation != tc.wantLoc || src.gotUniformBucketLevelAccess != tc.wantUniform {
 				t.Errorf("forwarded params = (%q, %q, %v)", src.gotBucket, src.gotLocation, src.gotUniformBucketLevelAccess)
 			}
 		})

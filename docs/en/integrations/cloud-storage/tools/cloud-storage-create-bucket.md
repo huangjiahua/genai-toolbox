@@ -29,7 +29,7 @@ naming rules.
 | **parameter** | **type** | **required** | **description** |
 |---------------|:--------:|:------------:|-----------------|
 | bucket | string | true | Name of the Cloud Storage bucket to create. |
-| location | string | false | Location for the bucket, e.g. "US", "EU", or "us-central1". Defaults to "US". |
+| location | string | false | Location for the bucket, e.g. "US", "EU", or "us-central1". Omit to use the Cloud Storage service default. |
 | uniform_bucket_level_access | boolean | false | Whether to enable uniform bucket-level access on the bucket. Defaults to false. |
 
 ## Example

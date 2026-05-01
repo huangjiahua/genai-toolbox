@@ -238,11 +238,10 @@ func TestCloudStorageToolEndpoints(t *testing.T) {
 					},
 					map[string]any{
 						"authServices": []any{},
-						"description":  "Location for the bucket, e.g. 'US', 'EU', or 'us-central1'.",
+						"description":  "Location for the bucket, e.g. 'US', 'EU', or 'us-central1'. Omit to use the Cloud Storage service default.",
 						"name":         "location",
 						"required":     false,
 						"type":         "string",
-						"default":      "US",
 					},
 					map[string]any{
 						"authServices": []any{},
@@ -980,8 +979,8 @@ func runCloudStorageListBucketsTest(t *testing.T, bucket string) {
 }
 
 func runCloudStorageCreateBucketTest(ctx context.Context, t *testing.T, client *storage.Client, bucket string) {
-	t.Run("create bucket with uniform bucket-level access", func(t *testing.T) {
-		body := fmt.Sprintf(`{"bucket": %q, "location": "US", "uniform_bucket_level_access": true}`, bucket)
+	t.Run("create bucket with omitted location", func(t *testing.T) {
+		body := fmt.Sprintf(`{"bucket": %q, "uniform_bucket_level_access": true}`, bucket)
 		result, status := invokeTool(t, "my_create_bucket", body)
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result)
@@ -1004,7 +1003,7 @@ func runCloudStorageCreateBucketTest(ctx context.Context, t *testing.T, client *
 	})
 
 	t.Run("missing bucket returns agent error", func(t *testing.T) {
-		result, status := invokeTool(t, "my_create_bucket", `{"location": "US"}`)
+		result, status := invokeTool(t, "my_create_bucket", `{}`)
 		if status != http.StatusOK {
 			t.Fatalf("unexpected status %d: %s", status, result)
 		}

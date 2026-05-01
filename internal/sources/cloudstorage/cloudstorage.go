@@ -221,12 +221,9 @@ func (s *Source) ListBuckets(ctx context.Context, project, prefix string, maxRes
 }
 
 // CreateBucket creates a Cloud Storage bucket in the source project and returns
-// its freshly-read metadata. When location is empty, Cloud Storage defaults to
-// "US"; the tool layer also supplies that default for clearer manifests.
+// its freshly-read metadata. When location is empty, Cloud Storage applies its
+// service default.
 func (s *Source) CreateBucket(ctx context.Context, bucket, location string, uniformBucketLevelAccess bool) (map[string]any, error) {
-	if location == "" {
-		location = "US"
-	}
 	attrs := &storage.BucketAttrs{Location: location}
 	if uniformBucketLevelAccess {
 		attrs.UniformBucketLevelAccess = storage.UniformBucketLevelAccess{Enabled: true}
