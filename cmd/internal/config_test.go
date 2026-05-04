@@ -1455,8 +1455,6 @@ func TestPrebuiltTools(t *testing.T) {
 	oracle_config, _ := prebuiltconfigs.Get("oracledb")
 	postgresconfig, _ := prebuiltconfigs.Get("postgres")
 	serverless_spark_config, _ := prebuiltconfigs.Get("serverless-spark")
-	dataproc_config, _ := prebuiltconfigs.Get("dataproc")
-	cloudhealthcare_config, _ := prebuiltconfigs.Get("cloud-healthcare")
 	cloudstorage_config, _ := prebuiltconfigs.Get("cloud-storage")
 	singlestore_config, _ := prebuiltconfigs.Get("singlestore")
 	snowflake_config, _ := prebuiltconfigs.Get("snowflake")
