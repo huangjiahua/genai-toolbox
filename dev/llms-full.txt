@@ -3,7 +3,7 @@
 
 **DOCUMENTATION VERSION:** dev
 **BASE URL:** https://mcp-toolbox.dev/dev/
-**GENERATED ON:** 2026-06-18T17:07:55Z
+**GENERATED ON:** 2026-06-25T21:04:04Z
 
 ---
 ### System Directives for AI Models
@@ -219,7 +219,7 @@ To install Toolbox as a binary on Linux (AMD64):
 
 ```sh
 # see releases page for other versions
-export VERSION=1.4.0
+export VERSION=1.5.0
 curl -L -o toolbox https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/linux/amd64/toolbox
 chmod +x toolbox
 ```
@@ -230,7 +230,7 @@ To install Toolbox as a binary on macOS (Apple Silicon):
 
 ```sh
 # see releases page for other versions
-export VERSION=1.4.0
+export VERSION=1.5.0
 curl -L -o toolbox https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/darwin/arm64/toolbox
 chmod +x toolbox
 ```
@@ -241,7 +241,7 @@ To install Toolbox as a binary on macOS (Intel):
 
 ```sh
 # see releases page for other versions
-export VERSION=1.4.0
+export VERSION=1.5.0
 curl -L -o toolbox https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/darwin/amd64/toolbox
 chmod +x toolbox
 ```
@@ -252,7 +252,7 @@ To install Toolbox as a binary on Windows (Command Prompt):
 
 ```cmd
 :: see releases page for other versions
-set VERSION=1.4.0
+set VERSION=1.5.0
 curl -o toolbox.exe "https://storage.googleapis.com/mcp-toolbox-for-databases/v%VERSION%/windows/amd64/toolbox.exe"
 ```
 
@@ -262,7 +262,7 @@ To install Toolbox as a binary on Windows (PowerShell):
 
 ```powershell
 # see releases page for other versions
-$VERSION = "1.4.0"
+$VERSION = "1.5.0"
 curl.exe -o toolbox.exe "https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/windows/amd64/toolbox.exe"
 ```
 
@@ -272,7 +272,7 @@ To install Toolbox as a binary on Windows ARM64 (Command Prompt):
 
 ```cmd
 :: see releases page for other versions
-set VERSION=1.4.0
+set VERSION=1.5.0
 curl -o toolbox.exe "https://storage.googleapis.com/mcp-toolbox-for-databases/v%VERSION%/windows/arm64/toolbox.exe"
 ```
 
@@ -282,7 +282,7 @@ To install Toolbox as a binary on Windows ARM64 (PowerShell):
 
 ```powershell
 # see releases page for other versions
-$VERSION = "1.4.0"
+$VERSION = "1.5.0"
 curl.exe -o toolbox.exe "https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/windows/arm64/toolbox.exe"
 ```
 
@@ -294,7 +294,7 @@ You can also install Toolbox as a container:
 
 ```sh
 # see releases page for other versions
-export VERSION=1.4.0
+export VERSION=1.5.0
 docker pull us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:$VERSION
 ```
 
@@ -313,7 +313,7 @@ To install from source, ensure you have the latest version of
 [Go installed](https://go.dev/doc/install), and then run the following command:
 
 ```sh
-go install github.com/googleapis/mcp-toolbox@v1.4.0
+go install github.com/googleapis/mcp-toolbox@v1.5.0
 ```
 
 {{% /tab %}}
@@ -1063,7 +1063,7 @@ In this section, we will download Toolbox, configure our tools in a
     <!-- {x-release-please-start-version} -->
     ```bash
     export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
-    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/$OS/toolbox
+    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
 
@@ -4354,9 +4354,9 @@ Whether you are writing a simple script to execute a single query or building a 
 
 By using our SDKs, your application can dynamically request tools, bind parameters, add authentication, and execute commands at runtime. We offer official support and deep framework integrations across three primary languages:
 
-*   **[Python](./python-sdk/_index.md)**: Includes the Core SDK, along with native integrations for popular orchestrators like LangChain, LlamaIndex, and the ADK.
-*   **[JavaScript / TypeScript](./javascript-sdk/_index.md)**: Includes the Node.js Core SDK and integrations for the Agent Development Kit (ADK).
-*   **[Go](./go-sdk/_index.md/)**: Includes the Core SDK, plus dedicated packages for building agents with Genkit (`tbgenkit`) and the ADK.
+*   **[Python](./python-sdk/)**: Includes the Core SDK, along with native integrations for popular orchestrators like LangChain, LlamaIndex, and the ADK.
+*   **[JavaScript / TypeScript](./javascript-sdk/)**: Includes the Node.js Core SDK and integrations for the Agent Development Kit (ADK).
+*   **[Go](./go-sdk/)**: Includes the Core SDK, plus dedicated packages for building agents with Genkit (`tbgenkit`) and the ADK.
 
 Select your preferred language to explore installation instructions, quickstart guides, and framework-specific implementations.
 
@@ -4371,100 +4371,17 @@ Select your preferred language to explore installation instructions, quickstart 
 
 
 
+<html>
+  <head>
+    <title>Redirecting to the Python SDK API reference</title>
+    <link rel="canonical" href="https://py.mcp-toolbox.dev"/>
+    <meta http-equiv="refresh" content="0;url=https://py.mcp-toolbox.dev"/>
+  </head>
+  <body>
+    <p>If you are not automatically redirected, please <a href="https://py.mcp-toolbox.dev">follow this link to the Python SDK API reference</a>.</p>
+  </body>
+</html>
 
-## Overview
-
-The MCP Toolbox service provides a centralized way to manage and expose tools
-(like API connectors, database query tools, etc.) for use by GenAI applications.
-
-These Python SDKs act as clients for that service. They handle the communication needed to:
-
-* Fetch tool definitions from your running Toolbox instance.
-* Provide convenient Python objects or functions representing those tools.
-* Invoke the tools (calling the underlying APIs/services configured in Toolbox).
-* Handle authentication and parameter binding as needed.
-
-By using these SDKs, you can easily leverage your Toolbox-managed tools directly
-within your Python applications or AI orchestration frameworks.
-
-## Which Package Should I Use?
-
-Choosing the right package depends on how you are building your application:
-
-* [`toolbox-adk`](adk):
-  Use this package if you are building your application using Google ADK (Agent Development Kit).
-  It provides tools that are directly compatible with the
-  Google ADK ecosystem (`BaseTool` / `BaseToolset` interface) handling authentication propagation, header management, and tool wrapping automatically.
-* [`toolbox-core`](core):
-  Use this package if you are not using LangChain/LangGraph or any other
-  orchestration framework, or if you need a framework-agnostic way to interact
-  with Toolbox tools (e.g., for custom orchestration logic or direct use in
-  Python scripts).
-* [`toolbox-langchain`](langchain):
-  Use this package if you are building your application using the LangChain or
-  LangGraph frameworks. It provides tools that are directly compatible with the
-  LangChain ecosystem (`BaseTool` interface), simplifying integration.
-* [`toolbox-llamaindex`](llamaindex):
-  Use this package if you are building your application using the LlamaIndex framework.
-  It provides tools that are directly compatible with the
-  LlamaIndex ecosystem (`BaseTool` interface), simplifying integration.
-
-
-## Available Packages
-
-This repository hosts the following Python packages. See the package-specific
-README for detailed installation and usage instructions:
-
-| Package | Target Use Case | Integration | Path | Details (README) | PyPI Status |
-| :------ | :---------- | :---------- | :---------------------- | :---------- | :--------- 
-| `toolbox-adk` | Google ADK applications | Google ADK | `packages/toolbox-adk/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-python/blob/main/packages/toolbox-adk/README.md) | ![pypi version](https://img.shields.io/pypi/v/toolbox-adk.svg) |
-| `toolbox-core` | Framework-agnostic / Custom applications | Use directly / Custom | `packages/toolbox-core/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-python/blob/main/packages/toolbox-core/README.md) | ![pypi version](https://img.shields.io/pypi/v/toolbox-core.svg) |
-| `toolbox-langchain` | LangChain / LangGraph applications | LangChain / LangGraph | `packages/toolbox-langchain/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-python/blob/main/packages/toolbox-langchain/README.md) | ![pypi version](https://img.shields.io/pypi/v/toolbox-langchain.svg) |
-| `toolbox-llamaindex` | LlamaIndex applications | LlamaIndex | `packages/toolbox-llamaindex/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-python/blob/main/packages/toolbox-llamaindex/README.md) | ![pypi version](https://img.shields.io/pypi/v/toolbox-llamaindex.svg) |
-
-
-## Getting Started
-
-To get started using Toolbox tools with an application, follow these general steps:
-
-1. **Set up and Run the Toolbox Service:**
-
-    Before using the SDKs, you need the main MCP Toolbox service running. Follow
-    the instructions here: [**Toolbox Getting Started
-    Guide**](https://github.com/googleapis/mcp-toolbox?tab=readme-ov-file#getting-started)
-
-2. **Install the Appropriate SDK:**
-
-    Choose the package based on your needs (see "[Which Package Should I Use?](#which-package-should-i-use)" above) and install it:
-
-    ```bash
-    # For the Google ADK Integration
-    pip install google-adk[toolbox]
-
-    # OR
-    
-    # For the core, framework-agnostic SDK
-    pip install toolbox-core
-
-    # OR
-
-    # For LangChain/LangGraph integration
-    pip install toolbox-langchain
-
-    # OR
-
-    # For the LlamaIndex integration
-    pip install toolbox-llamaindex
-    ```
-
-
-
-{{< notice note >}}
-Source code for [python-sdk](https://github.com/googleapis/mcp-toolbox-sdk-python)
-{{< /notice >}}
-
-
-## Explore the Python SDKs
 
 
 
@@ -6335,71 +6252,17 @@ Configure your OpenTelemetry `TracerProvider` and `MeterProvider` before creatin
 
 
 
-## Overview
+<html>
+  <head>
+    <title>Redirecting to the JavaScript SDK API reference</title>
+    <link rel="canonical" href="https://js.mcp-toolbox.dev"/>
+    <meta http-equiv="refresh" content="0;url=https://js.mcp-toolbox.dev"/>
+  </head>
+  <body>
+    <p>If you are not automatically redirected, please <a href="https://js.mcp-toolbox.dev">follow this link to the JavaScript SDK API reference</a>.</p>
+  </body>
+</html>
 
-The MCP Toolbox service provides a centralized way to manage and expose tools
-(like API connectors, database query tools, etc.) for use by GenAI applications.
-
-These JS SDKs act as clients for that service. They handle the communication needed to:
-
-* Fetch tool definitions from your running Toolbox instance.
-* Provide convenient JS objects or functions representing those tools.
-* Invoke the tools (calling the underlying APIs/services configured in Toolbox).
-* Handle authentication and parameter binding as needed.
-
-By using these SDKs, you can easily leverage your Toolbox-managed tools directly
-within your JS applications or AI orchestration frameworks.
-
-## Which Package Should I Use?
-
-Choosing the right package depends on how you are building your application:
-
-- [`@toolbox-sdk/core`](https://github.com/googleapis/mcp-toolbox-sdk-js/tree/main/packages/toolbox-core):
-  This is a framework agnostic way to connect the tools to popular frameworks
-  like Langchain, LlamaIndex and Genkit.
-- [`@toolbox-sdk/adk`](https://github.com/googleapis/mcp-toolbox-sdk-js/tree/main/packages/toolbox-adk):
-  This package provides a seamless way to connect to [Google ADK TS](https://github.com/google/adk-js).
-
-## Available Packages
-
-This repository hosts the following TS packages. See the package-specific
-README for detailed installation and usage instructions:
-
-| Package | Target Use Case | Integration | Path | Details (README) | Npm Version |
-| :------ | :---------- | :---------- | :---------------------- | :---------- | :---------- |
-| `toolbox-core` | Framework-agnostic / Custom applications | Use directly / Custom | `packages/toolbox-core/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-js/blob/main/packages/toolbox-core/README.md) | ![npm](https://img.shields.io/npm/v/@toolbox-sdk/core) |
-| `toolbox-adk` | ADK applications | ADK | `packages/toolbox-adk/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-js/blob/main/packages/toolbox-adk/README.md) | ![npm](https://img.shields.io/npm/v/@toolbox-sdk/adk) |
-
-
-## Getting Started
-
-To get started using Toolbox tools with an application, follow these general steps:
-
-1. **Set up and Run the Toolbox Service:**
-
-    Before using the SDKs, you need the main MCP Toolbox service running. Follow
-    the instructions here: [**Toolbox Getting Started
-    Guide**](https://github.com/googleapis/mcp-toolbox?tab=readme-ov-file#getting-started)
-
-2. **Install the Appropriate SDK:**
-
-    Choose the package based on your needs (see "[Which Package Should I Use?](#which-package-should-i-use)" above) and install it:
-
-    ```bash
-    # For the core, framework-agnostic SDK
-    npm install @toolbox-sdk/core
-
-    # For ADK applications
-    npm install @toolbox-sdk/adk
-    ```
-
-
-
-{{< notice note >}}
-Source code for [js-sdk](https://github.com/googleapis/mcp-toolbox-sdk-js)
-{{< /notice >}}
-
-## Explore the Javascript SDKs
 
 
 
@@ -7411,72 +7274,17 @@ await ai.generate({
 
 
 
-## Overview
+<html>
+  <head>
+    <title>Redirecting to the Go SDK API reference</title>
+    <link rel="canonical" href="https://go.mcp-toolbox.dev"/>
+    <meta http-equiv="refresh" content="0;url=https://go.mcp-toolbox.dev"/>
+  </head>
+  <body>
+    <p>If you are not automatically redirected, please <a href="https://go.mcp-toolbox.dev">follow this link to the Go SDK API reference</a>.</p>
+  </body>
+</html>
 
-The MCP Toolbox service provides a centralized way to manage and expose tools
-(like API connectors, database query tools, etc.) for use by GenAI applications.
-
-The Go SDK act as clients for that service. They handle the communication needed to:
-
-* Fetch tool definitions from your running Toolbox instance.
-* Provide convenient Go structs representing those tools.
-* Invoke the tools (calling the underlying APIs/services configured in Toolbox).
-* Handle authentication and parameter binding as needed.
-
-By using the SDK, you can easily leverage your Toolbox-managed tools directly
-within your Go applications or AI orchestration frameworks.
-
-## Which Package Should I Use?
-
-Choosing the right package depends on how you are building your application:
-
-- [**`core`**](core/):
-  This is a framework-agnostic way to connect tools to popular frameworks
-  like Google GenAI, LangChain, etc.
-
-- [**`tbadk`**](tbadk/):
-  This package provides a way to connect tools to ADK Go.
-
-- [**`tbgenkit`**](tbgenkit/):
-  This package provides functionality to convert the Tool fetched using the core package
-  into a Genkit Go compatible tool.
-
-## Available Packages
-
-This repository hosts the following Go packages. See the package-specific
-README for detailed installation and usage instructions:
-
-| Package | Target Use Case | Integration | Path | Details (README) |
-| :------ | :----------| :---------- | :---------------------- | :---------- |
-| [`core`](core/) | Framework-agnostic / Custom applications | Use directly / Custom | `core/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-go/blob/main/core/README.md) |
-| [`tbadk`](tbadk/) | ADK Go | Use directly | `tbadk/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-go/blob/main/tbadk/README.md) |
-| [`tbgenkit`](tbgenkit/) | Genkit Go | Along with core | `tbgenkit/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-go/blob/main/tbgenkit/README.md) |
-
-## Getting Started
-
-To get started using Toolbox tools with an application, follow these general steps:
-
-1. **Set up and Run the Toolbox Service:**
-
-    Before using the SDKs, you need the MCP Toolbox server running. Follow
-    the instructions here: [**Toolbox Getting Started
-    Guide**](https://github.com/googleapis/mcp-toolbox?tab=readme-ov-file#getting-started)
-
-2. **Install the Appropriate SDK:**
-
-    Choose the package based on your needs (see "[Which Package Should I Use?](#which-package-should-i-use)" above)
-    Use this command to install the SDK module
-
-    ```bash
-    # For the core, framework-agnostic SDK
-    go get github.com/googleapis/mcp-toolbox-sdk-go
-    ```
-
-{{< notice note >}}
-Source code for [Go-sdk](https://github.com/googleapis/mcp-toolbox-sdk-go)
-{{< /notice >}}
-
-## Explore the Go SDKs
 
 
 
@@ -10035,23 +9843,23 @@ After you install Looker in the MCP Store, resources and tools from the server a
 
 {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
 {{< /tab >}}
 
 {{< tab header="windows/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/arm64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -10541,23 +10349,23 @@ expose your developer assistant tools to a MySQL instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
 {{< /tab >}}
 
 {{< tab header="windows/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/arm64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -10871,23 +10679,23 @@ expose your developer assistant tools to a Neo4j instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
 {{< /tab >}}
 
 {{< tab header="windows/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/arm64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -11198,23 +11006,23 @@ to expose your developer assistant tools to an Oracle instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
 {{< /tab >}}
 
 {{< tab header="windows/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/arm64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -11547,23 +11355,23 @@ Omni](https://cloud.google.com/alloydb/omni/docs/overview).
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
 {{< /tab >}}
 
 {{< tab header="windows/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/arm64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -11904,23 +11712,23 @@ instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
 {{< /tab >}}
 
 {{< tab header="windows/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/arm64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -12234,23 +12042,23 @@ to expose your developer assistant tools to a SQLite instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
 {{< /tab >}}
 
 {{< tab header="windows/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/windows/arm64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -21903,6 +21711,8 @@ instead of hardcoding your secrets into the configuration file.
     *   `list_tables_missing_unique_indexes`: Looks for tables that do not have
         primary or unique key contraint.
     *   `list_table_fragmentation`: Displays table fragmentation in MySQL.
+    *   `list_all_locks`: Lists all current locks on the database.
+    *   `show_query_stats`: Show query execution statistics.
     *   `list_table_stats`: Displays table statistics in MySQL.
 
 
@@ -22998,6 +22808,11 @@ project. By default, it uses the project configured on the source. You can pass
 the optional `project` parameter to list buckets in a different project that
 the same credentials can access.
 
+You can also set `project` or `prefix` in the tool configuration. When set,
+that field is removed from the runtime parameter schema and the configured value
+is always used. Set `project` to an empty string to hide the parameter while
+using the source's configured project.
+
 The response is a JSON object with `buckets` (bucket metadata returned by the
 Cloud Storage API) and `nextPageToken` (empty when there are no more pages).
 
@@ -23026,6 +22841,16 @@ source: my-gcs-source
 description: Use this tool to list Cloud Storage buckets in the project.
 ```
 
+```yaml
+kind: tool
+name: list_log_buckets
+type: cloud-storage-list-buckets
+source: my-gcs-source
+description: Use this tool to list log buckets in the configured project.
+project: ""
+prefix: logs-
+```
+
 ## Output Format
 
 The tool returns a JSON object with:
@@ -23042,6 +22867,8 @@ The tool returns a JSON object with:
 | type        |  string  |     true     | Must be "cloud-storage-list-buckets".                   |
 | source      |  string  |     true     | Name of the Cloud Storage source to list buckets from.  |
 | description |  string  |     true     | Description of the tool that is passed to the LLM.      |
+| project     |  string  |    false     | Project ID to always use. When set, the runtime `project` parameter is hidden. An empty string uses the source's configured project. |
+| prefix      |  string  |    false     | Bucket name prefix to always use. When set, the runtime `prefix` parameter is hidden. |
 
 
 
@@ -23051,15 +22878,21 @@ The tool returns a JSON object with:
 ========================================================================
 **Hierarchy:** MCP Toolbox for Databases > Integrations > Cloud Storage > Tools > cloud-storage-create-bucket
 **URL:** https://mcp-toolbox.dev/dev/integrations/cloud-storage/tools/cloud-storage-create-bucket/
-**Description:** A "cloud-storage-create-bucket" tool creates a Cloud Storage bucket in the configured source project.
+**Description:** A "cloud-storage-create-bucket" tool creates a Cloud Storage bucket in a configured or runtime-selected project.
 
 
 
 ## About
 
-A `cloud-storage-create-bucket` tool creates a new Cloud Storage bucket in the
-project configured on the Cloud Storage source. Use it when an agent needs to
-provision a bucket before writing objects or building a data workflow.
+A `cloud-storage-create-bucket` tool creates a new Cloud Storage bucket. By
+default, it creates the bucket in the project configured on the Cloud Storage
+source. You can pass the optional `project` parameter to create buckets in a
+different project that the same credentials can access.
+
+You can also set `project`, `location`, or `uniform_bucket_level_access` in the
+tool configuration. When set, that field is removed from the runtime parameter
+schema and the configured value is always used. Set `project` to an empty string
+to hide the parameter while using the source's configured project.
 
 [gcs-buckets]: https://cloud.google.com/storage/docs/buckets
 
@@ -23069,7 +22902,7 @@ provision a bucket before writing objects or building a data workflow.
 
 ## Requirements
 
-The Cloud Storage credentials must be able to create buckets in the configured
+The Cloud Storage credentials must be able to create buckets in the target
 project. Bucket names are globally unique and must satisfy Cloud Storage bucket
 naming rules.
 
@@ -23078,6 +22911,7 @@ naming rules.
 | **parameter** | **type** | **required** | **description** |
 |---------------|:--------:|:------------:|-----------------|
 | bucket | string | true | Name of the Cloud Storage bucket to create. |
+| project | string | false | Project ID to create the bucket in. When empty, the source's configured project is used. |
 | location | string | false | Location for the bucket, e.g. "US", "EU", or "us-central1". Omit to use the Cloud Storage service default. |
 | uniform_bucket_level_access | boolean | false | Whether to enable uniform bucket-level access on the bucket. Defaults to false. |
 
@@ -23089,6 +22923,17 @@ name: create_bucket
 type: cloud-storage-create-bucket
 source: my-gcs-source
 description: Use this tool to create Cloud Storage buckets.
+```
+
+```yaml
+kind: tool
+name: create_us_bucket
+type: cloud-storage-create-bucket
+source: my-gcs-source
+description: Use this tool to create Cloud Storage buckets in the US location.
+project: ""
+location: US
+uniform_bucket_level_access: true
 ```
 
 ## Output Format
@@ -23108,6 +22953,9 @@ The tool returns a JSON object with:
 | type | string | true | Must be "cloud-storage-create-bucket". |
 | source | string | true | Name of the Cloud Storage source to create buckets from. |
 | description | string | true | Description of the tool that is passed to the LLM. |
+| project | string | false | Project ID to always use. When set, the runtime `project` parameter is hidden. An empty string uses the source's configured project. |
+| location | string | false | Bucket location to always use. When set, the runtime `location` parameter is hidden. |
+| uniform_bucket_level_access | boolean | false | Uniform bucket-level access setting to always use. When set, the runtime `uniform_bucket_level_access` parameter is hidden. |
 
 
 
@@ -23136,6 +22984,10 @@ returned by the Cloud Storage API — fields such as `Name`, `Size`, `ContentTyp
 `Updated`, `StorageClass`, `MD5`, etc.), `prefixes` (the common prefixes when
 `delimiter` is set), and `nextPageToken` (empty when there are no more pages).
 
+You can set `bucket`, `prefix`, or `delimiter` in the tool configuration. When
+set, that field is removed from the runtime parameter schema and the configured
+value is always used. A configured `bucket` must be a non-empty string.
+
 [gcs-buckets]: https://cloud.google.com/storage/docs/buckets
 
 ## Compatible Sources
@@ -23162,6 +23014,17 @@ source: my-gcs-source
 description: Use this tool to list objects in a Cloud Storage bucket.
 ```
 
+```yaml
+kind: tool
+name: list_log_objects
+type: cloud-storage-list-objects
+source: my-gcs-source
+description: Use this tool to list log objects in a Cloud Storage bucket.
+bucket: my-log-bucket
+prefix: logs/
+delimiter: /
+```
+
 ## Reference
 
 | **field**   | **type** | **required** | **description**                                         |
@@ -23169,6 +23032,9 @@ description: Use this tool to list objects in a Cloud Storage bucket.
 | type        |  string  |     true     | Must be "cloud-storage-list-objects".                   |
 | source      |  string  |     true     | Name of the Cloud Storage source to list objects from.  |
 | description |  string  |     true     | Description of the tool that is passed to the LLM.      |
+| bucket      |  string  |    false     | Bucket to always list from. When set, the runtime `bucket` parameter is hidden. Must not be empty. |
+| prefix      |  string  |    false     | Object prefix to always use. When set, the runtime `prefix` parameter is hidden. |
+| delimiter   |  string  |    false     | Delimiter to always use. When set, the runtime `delimiter` parameter is hidden. |
 
 
 
@@ -23189,6 +23055,10 @@ Storage bucket. Use it when the LLM needs fields such as location, storage
 class, labels, lifecycle configuration, or uniform bucket-level access status.
 
 The response is the bucket metadata structure returned by the Cloud Storage API.
+
+You can set `bucket` in the tool configuration. When set, `bucket` is removed
+from the runtime parameter schema and the configured bucket is always used. A
+configured `bucket` must be a non-empty string.
 
 ## Compatible Sources
 
@@ -23215,6 +23085,15 @@ source: my-gcs-source
 description: Use this tool to inspect metadata for a Cloud Storage bucket.
 ```
 
+```yaml
+kind: tool
+name: get_app_bucket_metadata
+type: cloud-storage-get-bucket-metadata
+source: my-gcs-source
+description: Use this tool to inspect metadata for the application bucket.
+bucket: my-app-bucket
+```
+
 ## Output Format
 
 The tool returns bucket metadata from the Cloud Storage API, including fields
@@ -23228,6 +23107,7 @@ such as `Name`, `Location`, `StorageClass`, `Created`, `Labels`,
 | type | string | true | Must be "cloud-storage-get-bucket-metadata". |
 | source | string | true | Name of the Cloud Storage source to get bucket metadata from. |
 | description | string | true | Description of the tool that is passed to the LLM. |
+| bucket | string | false | Bucket to always inspect. When set, the runtime `bucket` parameter is hidden. Must not be empty. |
 
 
 
@@ -23249,6 +23129,10 @@ object name, size, content type, generation, storage class, timestamps, checksum
 or custom metadata without reading the object's content.
 
 The response is the object metadata structure returned by the Cloud Storage API.
+
+You can set `bucket` in the tool configuration. When set, `bucket` is removed
+from the runtime parameter schema and the configured bucket is always used. A
+configured `bucket` must be a non-empty string.
 
 [gcs-objects]: https://cloud.google.com/storage/docs/objects
 
@@ -23273,6 +23157,15 @@ source: my-gcs-source
 description: Use this tool to inspect metadata for a Cloud Storage object.
 ```
 
+```yaml
+kind: tool
+name: get_app_object_metadata
+type: cloud-storage-get-object-metadata
+source: my-gcs-source
+description: Use this tool to inspect metadata for objects in the application bucket.
+bucket: my-app-bucket
+```
+
 ## Output Format
 
 The tool returns object metadata from the Cloud Storage API, including fields
@@ -23286,6 +23179,7 @@ such as `Name`, `Bucket`, `Size`, `ContentType`, `Updated`, `StorageClass`,
 | type        |  string  |     true     | Must be "cloud-storage-get-object-metadata".                |
 | source      |  string  |     true     | Name of the Cloud Storage source to get object metadata from. |
 | description |  string  |     true     | Description of the tool that is passed to the LLM.          |
+| bucket      |  string  |    false     | Bucket to always inspect objects from. When set, the runtime `bucket` parameter is hidden. Must not be empty. |
 
 
 
@@ -23304,6 +23198,10 @@ such as `Name`, `Bucket`, `Size`, `ContentType`, `Updated`, `StorageClass`,
 A `cloud-storage-get-bucket-iam-policy` tool returns the IAM policy bindings for
 a Cloud Storage bucket. Use it to inspect which principals have roles on a
 bucket without modifying access.
+
+You can set `bucket` in the tool configuration. When set, `bucket` is removed
+from the runtime parameter schema and the configured bucket is always used. A
+configured `bucket` must be a non-empty string.
 
 ## Compatible Sources
 
@@ -23330,6 +23228,15 @@ source: my-gcs-source
 description: Use this tool to inspect IAM bindings for a Cloud Storage bucket.
 ```
 
+```yaml
+kind: tool
+name: get_app_bucket_iam_policy
+type: cloud-storage-get-bucket-iam-policy
+source: my-gcs-source
+description: Use this tool to inspect IAM bindings for the application bucket.
+bucket: my-app-bucket
+```
+
 ## Output Format
 
 The tool returns a JSON object with:
@@ -23346,6 +23253,7 @@ The tool returns a JSON object with:
 | type | string | true | Must be "cloud-storage-get-bucket-iam-policy". |
 | source | string | true | Name of the Cloud Storage source to get bucket IAM policies from. |
 | description | string | true | Description of the tool that is passed to the LLM. |
+| bucket | string | false | Bucket whose IAM policy is always returned. When set, the runtime `bucket` parameter is hidden. Must not be empty. |
 
 
 
@@ -23378,6 +23286,10 @@ This tool is intended for small-to-medium textual content an LLM can process
 directly. For bulk downloads of large files to the local filesystem, use
 `cloud-storage-download-object`.
 
+You can set `bucket` in the tool configuration. When set, `bucket` is removed
+from the runtime parameter schema and the configured bucket is always used. A
+configured `bucket` must be a non-empty string.
+
 [gcs-objects]: https://cloud.google.com/storage/docs/objects
 
 ## Compatible Sources
@@ -23402,6 +23314,15 @@ source: my-gcs-source
 description: Use this tool to read the content of a Cloud Storage object.
 ```
 
+```yaml
+kind: tool
+name: read_app_object
+type: cloud-storage-read-object
+source: my-gcs-source
+description: Use this tool to read text objects from the application bucket.
+bucket: my-app-bucket
+```
+
 ## Reference
 
 | **field**   | **type** | **required** | **description**                                         |
@@ -23409,6 +23330,7 @@ description: Use this tool to read the content of a Cloud Storage object.
 | type        |  string  |     true     | Must be "cloud-storage-read-object".                    |
 | source      |  string  |     true     | Name of the Cloud Storage source to read the object from. |
 | description |  string  |     true     | Description of the tool that is passed to the LLM.      |
+| bucket      |  string  |    false     | Bucket to always read from. When set, the runtime `bucket` parameter is hidden. Must not be empty. |
 
 
 
@@ -29385,6 +29307,27 @@ instead of hardcoding your secrets into the configuration file.
 | queryParams            | map[string]string |    false     | Default query parameters to include in the HTTP requests.                                                                          |
 | returnFullError        |       bool        |    false     | Include raw upstream response bodies in error messages for non-2xx responses. Defaults to `false`.                                 |
 | disableSslVerification |       bool        |    false     | Disable SSL certificate verification. This should only be used for local development. Defaults to `false`.                         |
+| allowPrivateNetworks   |       bool        |    false     | Allow requests and redirects to loopback and private networks (RFC 1918 / link-local). Defaults to `false`.                         |
+| allowedIpRanges        |     []string      |    false     | List of IP addresses or CIDR blocks to explicitly allow (whitelisted overrides).                                                   |
+| customBlockedIpRanges  |     []string      |    false     | List of IP addresses or CIDR blocks to explicitly block.                                                                           |
+
+## Advanced Usage
+
+### SSRF Protection (SSRF Guard)
+By default, the HTTP source implements strict protection against Server-Side Request Forgery (SSRF) and DNS Rebinding (TOCTOU) attacks. It automatically intercepts, resolves, and blocks connection requests to private IP ranges, loopback ranges (such as `127.0.0.1`), and link-local ranges (e.g. AWS/GCP metadata service at `169.254.169.254`).
+
+To override the default protection or block custom ranges, configure `allowPrivateNetworks`, `allowedIpRanges`, and `customBlockedIpRanges`:
+
+```yaml
+kind: source
+name: my-http-source
+type: http
+baseUrl: https://internal.corp/api
+allowedIpRanges:
+  - 10.0.0.0/24         # Explicitly trust internal subnet
+customBlockedIpRanges:
+  - 10.0.0.99           # Block a specific sensitive host inside the subnet
+```
 
 [parse-duration-doc]: https://pkg.go.dev/time#ParseDuration
 
@@ -33639,16 +33582,18 @@ description: |
 The `looker-query` tool runs a query using the Looker
 semantic model.
 
-`looker-query` takes eight parameters:
+`looker-query` takes ten parameters:
 
 1. the `model`
 2. the `explore`
 3. the `fields` list
 4. an optional set of `filters`
-5. an optional set of `pivots`
-6. an optional set of `sorts`
-7. an optional `limit`
-8. an optional `tz`
+5. an optional `filter_expression`
+6. an optional `dynamic_fields`
+7. an optional set of `pivots`
+8. an optional set of `sorts`
+9. an optional `limit`
+10. an optional `tz`
 
 Starting in Looker v25.18, these queries can be identified in Looker's
 System Activity. In the History explore, use the field API Client Name
@@ -33679,6 +33624,21 @@ description: |
     - Do not quote field names.
     - Use `not null` instead of `-NULL`.
     - If a value contains a comma, enclose it in single quotes (e.g., "'New York, NY'").
+  - filter_expression: A Looker expression filter string (custom filter). This allows complex logic and comparing fields.
+    - Reference fields using `${view.field_name}` syntax.
+    - Supports logical operators (`AND`, `OR`, `NOT`) and comparison operators.
+    - Supports Looker functions (e.g., `matches_filter`, `now`, `add_days`, `diff_days`).
+    - Examples:
+      - `${orders.order_date} < add_years(-1, now())`
+      - `${activity.email} != ${activity_drive_facts.current_owner_email}`
+      - `matches_filter(${order.order_month}, '24 months') AND matches_filter(${order.order_month}, 'before 2024/07/01')`
+  - dynamic_fields: An optional array of dynamic fields (table calculations, custom measures, custom dimensions) defined as JSON objects.
+    - Useful for ad-hoc calculations that are not defined in the LookML model.
+    - Reference fields using `${view.field_name}` syntax.
+    - Examples:
+      - Table Calculation: `[{"table_calculation": "test", "label": "test", "expression": "${order_items.total_sale_price} * 0.8", "_type_hint": "number"}]`
+      - Custom Dimension: `[{"dimension": "days_since_order", "label": "days since order", "expression": "diff_days(${order.order_date}, now())", "_type_hint": "number"}]`
+      - Custom Measure: `[{"measure": "sum_of_revenue", "label": "Sum of Revenue", "based_on": "training.revenue", "type": "sum", "_type_hint": "number"}]`
   - sorts: A list of fields to sort by, optionally including direction (e.g., `["view.field desc"]`).
   - limit: Row limit (default 500). Use "-1" for unlimited.
   - query_timezone: specific timezone for the query (e.g. `America/Los_Angeles`).
@@ -33713,16 +33673,18 @@ description: |
 The `looker-query-sql` generates a sql query using the Looker
 semantic model.
 
-`looker-query-sql` takes eight parameters:
+`looker-query-sql` takes ten parameters:
 
 1. the `model`
 2. the `explore`
 3. the `fields` list
 4. an optional set of `filters`
-5. an optional set of `pivots`
-6. an optional set of `sorts`
-7. an optional `limit`
-8. an optional `tz`
+5. an optional `filter_expression`
+6. an optional `dynamic_fields`
+7. an optional set of `pivots`
+8. an optional set of `sorts`
+9. an optional `limit`
+10. an optional `tz`
 
 Starting in Looker v25.18, these queries can be identified in Looker's
 System Activity. In the History explore, use the field API Client Name
@@ -33747,7 +33709,7 @@ description: |
   Parameters:
   All parameters for this tool are identical to those of the `query` tool.
   This includes `model_name`, `explore_name`, `fields` (required),
-  and optional parameters like `pivots`, `filters`, `sorts`, `limit`, and `query_timezone`.
+  and optional parameters like `pivots`, `filters`, `filter_expression`, `dynamic_fields`, `sorts`, `limit`, and `query_timezone`.
 
   Output:
   The result of this tool is the raw SQL text.
@@ -33778,17 +33740,19 @@ description: |
 The `looker-query-url` generates a url link to an explore in
 Looker so the query can be investigated further.
 
-`looker-query-url` takes nine parameters:
+`looker-query-url` takes eleven parameters:
 
 1. the `model`
 2. the `explore`
 3. the `fields` list
 4. an optional set of `filters`
-5. an optional set of `pivots`
-6. an optional set of `sorts`
-7. an optional `limit`
-8. an optional `tz`
-9. an optional `vis_config`
+5. an optional `filter_expression`
+6. an optional `dynamic_fields`
+7. an optional set of `pivots`
+8. an optional set of `sorts`
+9. an optional `limit`
+10. an optional `tz`
+11. an optional `vis_config`
 
 ## Compatible Sources
 
@@ -33808,7 +33772,7 @@ description: |
 
   Parameters:
   All query parameters (e.g., `model_name`, `explore_name`, `fields`, `pivots`,
-  `filters`, `sorts`, `limit`, `query_timezone`) are the same as the `query` tool.
+  `filters`, `filter_expression`, `dynamic_fields`, `sorts`, `limit`, `query_timezone`) are the same as the `query` tool.
 
   Additionally, it accepts an optional `vis_config` parameter:
   - vis_config (optional): A JSON object that controls the default visualization
@@ -34881,7 +34845,7 @@ In this section, we will download Toolbox and run the Toolbox server.
     <!-- {x-release-please-start-version} -->
     ```bash
     export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
-    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/$OS/toolbox
+    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
 
@@ -35042,7 +35006,7 @@ In this section, we will download Toolbox and run the Toolbox server.
     <!-- {x-release-please-start-version} -->
     ```bash
     export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
-    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/$OS/toolbox
+    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
 
@@ -35165,7 +35129,7 @@ In this section, we will download Toolbox and run the Toolbox server.
     <!-- {x-release-please-start-version} -->
     ```bash
     export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
-    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.4.0/$OS/toolbox
+    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
 
@@ -37005,6 +36969,78 @@ The response is a json array with the following fields:
 
 
 ========================================================================
+## mysql-list-all-locks
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > MySQL > Tools > mysql-list-all-locks
+**URL:** https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-list-all-locks/
+**Description:** A "mysql-list-all-locks" tool list all active locks including lock type, lock mode, locked object, lock status, transaction state, query and process id for all objects or specified objects within a designated database or across all databases as requested. 
+
+
+
+## About
+`mysql-list-all-locks` tool retrieves active database locks by joining performance_schema.data_locks with information_schema.innodb_trx, providing a comprehensive view of blocked threads, transaction states, and the specific queries causing contention.
+
+`mysql-list-all-locks` outputs a detailed view of data locks including lock type, lock mode, lock status, transaction state, current operation and query for all threads running on specified object or all objects in a database. The output is a JSON formatted array of top 10 data locks ordered by longest running transaction time.
+
+## Compatible Sources
+
+{{< compatible-sources others="integrations/cloud-sql-mysql">}}
+
+## Requirements
+
+- `performance_schema` should be turned ON for this tool to work. 
+
+## Parameters
+
+This tool takes 3 optional input parameters:
+- `table_schema` (optional): The target database for active locks. If not specified the results will be displayed for all databases. 
+- `table_name` (optional): Name of the table to be checked. Check all tables visible to the current user if not specified.
+- `limit` (optional): Max rows to return, default 10.
+- `connected_schema` (optional): The database user is connected to, the value is set from env variable `CLOUD_SQL_MYSQL_DATABASE` or `MYSQL_DATABASE`.
+
+## Example
+
+```yaml
+kind: tools
+name: list_all_locks
+type: mysql-list-all-locks
+source: my-mysql-instance
+description: list all active locks including lock type, lock mode, locked object, lock status, transaction state, query and process id for all objects or specified objects within a designated database or across all databases as requested.
+```
+
+## Output Format
+
+The response is a json array with the following fields:
+```json
+[
+  {
+  "thread_id": "The internal MySQL server thread identifier associated with the lock",
+  "process_id": "MySQL Process ID",
+  "db": "The database schema where the locked object is located",
+  "table_name": "The name of the specific table affected by the lock",
+  "lock_type": "The target of the lock, such as a table or an individual record",
+  "lock_mode": "The specific permission level of the lock (e.g., Shared or Exclusive)",
+  "lock_status": "Whether the lock has been successfully granted or is currently waiting",
+  "transaction_state": "The current lifecycle phase of the transaction",
+  "current_operation": "The specific internal task the transaction is currently performing",
+  "query": "The trimmed text of the SQL statement"
+  }
+]
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "mysql-list-all-locks".                    |
+| source      |  string  |     true     | Name of the source the SQL should execute on.      |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+
+========================================================================
 ## mysql-list-table-fragmentation
 ========================================================================
 **Hierarchy:** MCP Toolbox for Databases > Integrations > MySQL > Tools > mysql-list-table-fragmentation
@@ -37266,6 +37302,78 @@ The response is a json array with the following fields:
 
 
 ========================================================================
+## mysql-show-query-stats
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > MySQL > Tools > mysql-show-query-stats
+**URL:** https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-show-query-stats/
+**Description:** A "mysql-show-query-stats" tool report query execution statistics including execution count, total and average latency, max latency, total rows examined, full table scans, and inefficient index usage for all queries on a specified database or all databases as requested.
+
+
+
+## About
+`mysql-show-query-stats` tool retrieves a database level query statistics from performance_schema.events_statements_summary_by_digest to identify slow and inefficient queries and provides necessary data to perform effective query tuning.
+
+`mysql-show-query-stats` outputs detailed query statistics including total latency, average latency, maximum latency, total rows sent, total rows examined, full table scan count, inefficient index usage count and last executed timestamp. The output format is JSON array of top 10 queries ranked by total latency.
+
+## Compatible Sources
+
+{{< compatible-sources others="integrations/cloud-sql-mysql">}}
+
+## Requirements
+
+- `performance_schema` should be turned ON for this tool to work. 
+
+## Parameters
+
+This tool takes 2 optional input parameters:
+- `table_schema` (optional): The target database for query statistics. If not specified the results will be displayed for all databases. 
+- `limit` (optional): Max rows to return, default 10.
+- `connected_schema` (optional): The database user is connected to, the value is set from env variable `CLOUD_SQL_MYSQL_DATABASE` or `MYSQL_DATABASE`.
+
+## Example
+
+```yaml
+kind: tools
+name: show_query_stats
+type: mysql-show-query-stats
+source: my-mysql-instance
+description: Shows query execution statistics including execution count, total and average latency, max latency, total rows examined, full table scans, and inefficient index usage for all queries on a specified database or from all databases. Results are limited to 10 by default.
+```
+
+## Output Format
+
+The response is a json array with the following fields:
+```json
+[
+  {
+  "table_schema": "The schema/database this table belongs to",
+  "table_name": "Name of this table",
+  "exec_count": "Number of times query is executed",
+  "total_latency_ms": "total latency in milli seconds",
+  "average_latency_ms": "average latency in milli seconds",
+  "max_latency_ms": "maximum latency in milli seconds",
+  "total_rows_sent": "total number of rows sent",
+  "sum_rows_examined": "total number of rows examined",
+  "sum_no_index_used": "count of full table scan",
+  "sum_no_good_index_used": "count of inefficient index use",
+  "last_seen": "time when query was last seen"
+  }
+]
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "mysql-show-query-stats".                  |
+| source      |  string  |     true     | Name of the source the SQL should execute on.      |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+
+========================================================================
 ## mysql-sql
 ========================================================================
 **Hierarchy:** MCP Toolbox for Databases > Integrations > MySQL > Tools > mysql-sql
@@ -37414,6 +37522,8 @@ templateParameters:
     *   `list_tables_missing_unique_indexes`: Looks for tables that do not have
         primary or unique key contraint.
     *   `list_table_fragmentation`: Displays table fragmentation in MySQL.
+    *   `list_all_locks`: Lists all current locks on the database.
+    *   `show_query_stats`: Show query execution statistics.
     *   `list_table_stats`: Displays table statistics in MySQL.
 
 
@@ -45700,7 +45810,7 @@ Configure the Gemini CLI to talk to your local Toolbox MCP server.
 |              | `--telemetry-gcp-project`  | Google Cloud project ID used for `--telemetry-gcp`; defaults to `GOOGLE_CLOUD_PROJECT` if not set.                                                                        |             |
 |              | `--telemetry-otlp`         | Enable exporting using OpenTelemetry Protocol (OTLP) to the specified endpoint (e.g. 'http://127.0.0.1:4318')                                                             |             |
 |              | `--telemetry-service-name` | Sets the value of the service.name resource attribute for telemetry data.                                                                                                 | `toolbox`   |
-|              | `--sql-commenter`          | Append SQLCommenter-format comments (traceparent, server, tool.name, db.system.name, client metadata from `_meta["dev.mcp-toolbox/telemetry"]`) to executed SQL.          |             |
+|              | `--sql-commenter`          | Prepend SQLCommenter-format comments (traceparent, server, tool.name, db.system.name, client metadata from `_meta["dev.mcp-toolbox/telemetry"]`) to executed SQL.         |             |
 |              | `--config`                 | File path specifying the tool configuration. Cannot be used with --configs or --config-folder.                                                                            |             |
 |              | `--configs`                | Multiple file paths specifying tool configurations. Files will be merged. Cannot be used with --config or --config-folder.                                                |             |
 |              | `--config-folder`          | Directory path containing YAML tool configuration files. All .yaml and .yml files in the directory will be loaded and merged. Cannot be used with --config or --configs.  |             |
